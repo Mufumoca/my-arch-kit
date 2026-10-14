@@ -1,0 +1,6 @@
+// Kanban 看板（~/.config/quickshell/kanban）
+spawn-at-startup "qs" "-c" "kanban" "-d"
+
+binds {
+    Mod+Semicolon allow-inhibiting=false hotkey-overlay-title="看板 Kanban" { spawn "qs" "ipc" "-c" "kanban" "call" "kanban" "toggle"; }
+}

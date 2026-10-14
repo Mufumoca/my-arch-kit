@@ -1,0 +1,15 @@
+// 音乐卡片（~/.config/quickshell/music，后端 systemd --user music-card.service）
+// QT_SCALE_FACTOR=1.5：整体放大 50%（清晰重绘，不是拉伸）
+spawn-at-startup "env" "QT_SCALE_FACTOR=1.5" "qs" "-c" "music" "-d"
+
+// 卡片是普通窗口：默认浮动在屏幕正中，Mod+V 可切回平铺，Mod+Q 关闭（音乐不停）
+window-rule {
+    match app-id="org.quickshell" title="^Music Card$"
+    open-floating true
+    default-column-width { fixed 1076; }
+    default-window-height { fixed 495; }
+}
+
+binds {
+    Mod+M hotkey-overlay-title="音乐卡片 显示/聚焦/隐藏" { spawn "qs" "ipc" "-c" "music" "call" "music" "toggle"; }
+}

@@ -1,0 +1,5 @@
+// P5 锁屏（~/.config/quickshell/p5lock）
+// 日常锁屏由 DMS 的 Custom Lock Command 拉起，这里只补一个“先确认上锁、再挂起”的快捷键
+binds {
+    Mod+Alt+P hotkey-overlay-title="挂起 Suspend" { spawn-sh "$HOME/.config/quickshell/p5lock/p5lock.sh --wait && systemctl suspend"; }
+}
