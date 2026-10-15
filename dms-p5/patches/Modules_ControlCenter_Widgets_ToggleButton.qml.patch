@@ -1,0 +1,182 @@
+diff --git a/Modules/ControlCenter/Widgets/ToggleButton.qml b/Modules/ControlCenter/Widgets/ToggleButton.qml
+index 11cfb37..56f80cc 100644
+--- a/Modules/ControlCenter/Widgets/ToggleButton.qml
++++ b/Modules/ControlCenter/Widgets/ToggleButton.qml
+@@ -1,8 +1,11 @@
+ import QtQuick
++import qs.DankCommon.Common
++import qs.DankCommon.Widgets
+ import qs.Common
+ import qs.Widgets
+ 
+-Rectangle {
++// P5：开关块。开启 = 淡紫底墨字 + 粉色错位板；关闭 = 墨色底白框。
++Item {
+     id: root
+ 
+     LayoutMirroring.enabled: I18n.isRtl
+@@ -19,94 +22,84 @@ Rectangle {
+ 
+     width: parent ? parent.width : 200
+     height: 60
+-    radius: {
+-        if (Theme.cornerRadius === 0)
+-            return 0;
+-        return isActive ? Theme.cornerRadius : Theme.cornerRadius + 4;
+-    }
+-
+-    readonly property color _tileBgActive: Theme.ccTileActiveBg
+-    readonly property color _tileBgInactive: Theme.ccPillInactiveBg
+-    readonly property color _tileRingActive: Theme.ccTileRing
+-
+-    color: {
+-        if (isActive)
+-            return _tileBgActive;
+-        const baseColor = mouseArea.containsMouse ? Theme.ccPillInactiveHoverBg : _tileBgInactive;
+-        return baseColor;
+-    }
+-    border.color: isActive ? _tileRingActive : Theme.outlineMedium
+-    border.width: isActive ? 1 : Theme.layerOutlineWidth
+     opacity: enabled ? 1.0 : 0.6
+ 
+-    readonly property color _containerBg: Theme.ccPillInactiveBg
+-
+-    Rectangle {
++    P5Plate {
+         anchors.fill: parent
+-        radius: Theme.cornerRadius
+-        color: mouseArea.containsMouse ? Theme.hoverTint(_containerBg) : Theme.withAlpha(_containerBg, 0)
+-        opacity: mouseArea.containsMouse ? 0.08 : 0.0
+-
+-        Behavior on opacity {
+-            NumberAnimation {
+-                duration: Theme.shortDuration
++        anchors.topMargin: 2
++        anchors.bottomMargin: 2
++        skew: 14
++        jitter: 2
++        seed: (root.text.length * 11 + root.iconName.length * 5) % 89
++        fillColor: mouseArea.pressed ? P5.blood : (root.isActive ? P5.violet : (mouseArea.containsMouse ? P5.plum : P5.ink))
++        borderWidth: root.isActive ? 0 : 2
++        borderColor: P5.alpha(P5.lilac, 0.5)
++        slabColor: root.isActive ? P5.pink : "transparent"
++        slabOffset: Qt.point(4, 4)
++        Behavior on fillColor {
++            ColorAnimation {
++                duration: P5.dur(140)
+             }
+         }
+     }
+ 
+     Row {
+         anchors.fill: parent
+-        anchors.leftMargin: Theme.spacingL + 2
+-        anchors.rightMargin: Theme.spacingM
+-        spacing: Theme.spacingM
++        anchors.leftMargin: 22
++        anchors.rightMargin: 14
++        spacing: 12
+ 
+         DankIcon {
+             name: root.iconName
+             size: Theme.iconSize
+-            color: isActive ? Theme.ccTileActiveText : Theme.ccTileInactiveIcon
++            color: root.isActive ? P5.ink : P5.lilac
+             anchors.verticalCenter: parent.verticalCenter
+             rotation: root.iconRotation
+             onRotationCompleted: root.iconRotationCompleted()
+         }
+ 
+-        Item {
++        Column {
+             width: parent.width - Theme.iconSize - parent.spacing
+-            height: parent.height
+-
+-            Column {
+-                anchors.left: parent.left
+-                anchors.right: parent.right
+-                anchors.verticalCenter: parent.verticalCenter
+-                spacing: Theme.spacingXXS
+-
+-                StyledText {
+-                    width: parent.width
+-                    text: root.text
+-                    font.pixelSize: Theme.fontSizeMedium
+-                    color: isActive ? Theme.ccTileActiveText : Theme.surfaceText
+-                    font.weight: Font.Medium
+-                    elide: Text.ElideRight
+-                    wrapMode: Text.NoWrap
+-                    horizontalAlignment: Text.AlignLeft
+-                }
+-
+-                StyledText {
+-                    width: parent.width
+-                    text: root.secondaryText
+-                    font.pixelSize: Theme.fontSizeSmall
+-                    color: isActive ? Theme.ccTileActiveText : Theme.surfaceVariantText
+-                    visible: text.length > 0
+-                    elide: Text.ElideRight
+-                    wrapMode: Text.NoWrap
+-                    horizontalAlignment: Text.AlignLeft
+-                }
++            anchors.verticalCenter: parent.verticalCenter
++            spacing: 0
++
++            Text {
++                width: parent.width
++                text: root.text
++                color: root.isActive ? P5.ink : P5.paper
++                font.family: P5.bodyFont
++                font.pixelSize: 15
++                font.weight: Font.Black
++                elide: Text.ElideRight
++            }
++            Text {
++                width: parent.width
++                text: root.secondaryText
++                color: root.isActive ? P5.velvet : P5.lilac
++                font.family: P5.labelFont
++                font.pixelSize: 13
++                font.italic: true
++                font.weight: Font.Bold
++                visible: text.length > 0
++                elide: Text.ElideRight
+             }
+         }
+     }
+ 
+-    DankRipple {
+-        id: ripple
+-        cornerRadius: root.radius
++    // 开启时右上角一个小 “ON” 角标
++    P5Tag {
++        visible: root.isActive
++        anchors.right: parent.right
++        anchors.rightMargin: 10
++        y: -6
++        text: "ON"
++        family: P5.displayFont
++        italic: false
++        weight: Font.Normal
++        pixelSize: 11
++        fillColor: P5.ink
++        textColor: P5.violet
++        tilt: -6
+     }
+ 
+     MouseArea {
+@@ -115,14 +108,6 @@ Rectangle {
+         hoverEnabled: true
+         cursorShape: Qt.PointingHandCursor
+         enabled: root.enabled
+-        onPressed: mouse => ripple.trigger(mouse.x, mouse.y)
+         onClicked: root.clicked()
+     }
+-
+-    Behavior on radius {
+-        NumberAnimation {
+-            duration: Theme.shortDuration
+-            easing.type: Theme.standardEasing
+-        }
+-    }
+ }

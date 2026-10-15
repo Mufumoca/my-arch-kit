@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="red">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>P5R Save — 轮转条幅</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="stage">
+  <!-- 背景：红色碎片 -->
+  <svg id="shards" width="1920" height="1080" viewBox="0 0 1920 1080">
+    <defs>
+      <linearGradient id="gShardA" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" class="s-hi"/><stop offset=".55" class="s-mid"/><stop offset="1" class="s-lo"/>
+      </linearGradient>
+      <linearGradient id="gShardB" x1="1" y1="0" x2="0" y2="1">
+        <stop offset="0" class="s-mid"/><stop offset=".6" class="s-lo"/><stop offset="1" class="s-dark"/>
+      </linearGradient>
+      <filter id="soft" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="2.2"/></filter>
+      <filter id="softer" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="6"/></filter>
+    </defs>
+    <g id="shardLayer"></g>
+  </svg>
+
+  <!-- 条幅（JS 生成） -->
+  <div id="fan"></div>
+
+  <!-- 标题 SaVE -->
+  <div id="title">
+    <svg class="title-bg" width="560" height="360" viewBox="-40 -40 560 360">
+      <polygon class="t-red" points="30,22 132,12 140,26 300,16 316,4 452,8 470,96 438,104 452,300 120,318 96,250 40,256 30,150 8,148"/>
+      <polygon class="t-black" points="-26,58 60,38 72,52 236,30 250,44 420,28 436,40 470,36 478,140 448,166 456,198 300,214 286,232 120,246 104,232 -6,240 -2,200 -30,190"/>
+    </svg>
+    <div class="t-letters">
+      <span class="t-S">S</span><span class="t-a">a</span><span class="t-V">V</span><span class="t-E">E</span>
+    </div>
+  </div>
+
+  <!-- 左侧斜滚动条 -->
+  <div id="scrollbar"><div id="thumb"></div></div>
+
+  <!-- 按键提示 -->
+  <div id="hints">
+    <span class="hint" data-act="back"><i class="btn-o"></i><b>Back</b></span>
+    <span class="hint" data-act="confirm"><i class="btn-x"></i><b>Confirm</b></span>
+  </div>
+
+  <div id="help">↑↓ / 滚轮 / 拖动 切换 · Enter 确认 · Esc 收起/展开 · T 换主题色</div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,14 @@
+diff --git a/Services/BarWidgetService.qml b/Services/BarWidgetService.qml
+index 31a3067..3d020ab 100644
+--- a/Services/BarWidgetService.qml
++++ b/Services/BarWidgetService.qml
+@@ -183,7 +183,8 @@ Singleton {
+             "cpuUsage": "cpuClicked",
+             "memUsage": "ramClicked",
+             "cpuTemp": "cpuTempClicked",
+-            "gpuTemp": "gpuTempClicked"
++            "gpuTemp": "gpuTempClicked",
++            "clipboard": "clipboardClicked"
+         };
+ 
+         const signalName = signalMap[widgetId];

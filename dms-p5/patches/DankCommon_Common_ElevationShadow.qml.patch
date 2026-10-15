@@ -1,0 +1,98 @@
+diff --git a/DankCommon/Common/ElevationShadow.qml b/DankCommon/Common/ElevationShadow.qml
+index 9baab88..e539618 100644
+--- a/DankCommon/Common/ElevationShadow.qml
++++ b/DankCommon/Common/ElevationShadow.qml
+@@ -2,6 +2,9 @@ pragma ComponentBehavior: Bound
+ 
+ import QtQuick
+ 
++// P5：原本是“圆角矩形 + M3 投影”，这里改为 P5 板（切角 + 错位紫板 + 流光 + 投影），
++// 所有弹出面板、模态框、通知、OSD 都经过这里，所以一处修改全局生效。
++// 小尺寸（卡片、分组头）只切小角，不画错位板与纹理。
+ Item {
+     id: root
+ 
+@@ -31,27 +34,71 @@ Item {
+     property color shadowColor: Style.elevationShadowColor ? Style.elevationShadowColor(level) : Qt.rgba(0, 0, 0, level && level.alpha !== undefined ? level.alpha : 0.25)
+     property real shadowOpacity: 1
+ 
+-    readonly property var _ambient: Style.elevationAmbient ? Style.elevationAmbient(level) : ({
+-            blurPx: 0,
+-            spreadPx: 0,
+-            alpha: 0
+-        })
+-    readonly property real _pad: shadowEnabled ? Math.ceil(Math.max(shadowBlurPx + shadowSpreadPx + Math.max(Math.abs(shadowOffsetX), Math.abs(shadowOffsetY)), _ambient.blurPx + _ambient.spreadPx) + 2) : 0
++    // ---- P5 ----
++    // 大面板：夜紫底 + 粗白框 + 内框线 + 歪斜的四角 + 旋转错位的淡紫板与粉板
++    // 小卡片：只切小角
++    readonly property bool p5Panel: root.sourceWidth >= 160 && root.sourceHeight >= 72
++    readonly property bool p5Solid: root.targetColor.a > 0.4
++    readonly property bool p5Dressed: root.p5Panel && root.p5Solid
++    property int p5Seed: P5.nextSeed()
++    property real p5Cut: root.p5Panel ? 18 : Math.min(6, Math.min(root.sourceWidth, root.sourceHeight) * 0.25)
++    property real p5Jitter: root.p5Dressed ? 4 : 0
++    property color p5Fill: root.p5Dressed ? P5.alpha(P5.night, Math.max(0.86, root.targetColor.a)) : root.targetColor
++    property color p5SlabColor: P5.violet
++    property point p5SlabOffset: Qt.point(10, 9)
++    property real p5SlabRotation: 1.1 * (P5.rand(root.p5Seed, 9) >= 0 ? 1 : -1)
++    property color p5Slab2Color: P5.pink
++    property point p5Slab2Offset: Qt.point(-6, 15)
++    property real p5Slab2Rotation: -1.6 * (P5.rand(root.p5Seed, 9) >= 0 ? 1 : -1)
++    property real p5Stripes: root.p5Panel ? 0.025 : 0
++    property real p5Sheen: root.p5Panel ? 0.06 : 0
++    readonly property color p5Border: root.borderWidth > 0 && root.borderColor.a > 0 && !root.p5Dressed ? root.borderColor : (root.p5Dressed ? P5.paper : (root.p5Solid ? P5.alpha(P5.lilac, 0.16) : "transparent"))
++    readonly property real p5BorderWidth: root.p5Dressed ? 3.5 : (root.borderWidth > 0 && root.borderColor.a > 0 ? root.borderWidth : (root.p5Solid ? 1 : 0))
++
++    function _j(i) {
++        return root.p5Jitter > 0 ? P5.rand(root.p5Seed, i) * root.p5Jitter : 0;
++    }
++    readonly property real _rotReach: root.p5Dressed ? Math.max(Math.abs(root.p5SlabRotation), Math.abs(root.p5Slab2Rotation)) * Math.PI / 180 * Math.sqrt(root.sourceWidth * root.sourceWidth + root.sourceHeight * root.sourceHeight) / 2 : 0
++    readonly property real _pad: Math.ceil(Math.max(root.shadowEnabled ? root.shadowBlurPx + root.shadowSpreadPx + Math.max(Math.abs(root.shadowOffsetX), Math.abs(root.shadowOffsetY)) : 0, root.p5Dressed ? Math.max(Math.abs(root.p5SlabOffset.x), Math.abs(root.p5SlabOffset.y), Math.abs(root.p5Slab2Offset.x), Math.abs(root.p5Slab2Offset.y)) + root._rotReach : 0) + root.p5Jitter + 2)
++
++    // 与 P5Plate 一样，只有显示中的面板才驱动全局流动相位
++    readonly property bool _flowing: (root.p5Stripes > 0 || root.p5Sheen > 0) && root.visible && root.opacity > 0 && root.width > 0 && P5.motionEnabled
++    property bool _flowRegistered: false
++    function _syncFlow() {
++        if (_flowing === _flowRegistered)
++            return;
++        P5.flowUsers += _flowing ? 1 : -1;
++        _flowRegistered = _flowing;
++    }
++    on_FlowingChanged: _syncFlow()
++    Component.onCompleted: _syncFlow()
++    Component.onDestruction: if (_flowRegistered) P5.flowUsers -= 1
+ 
+     ShaderEffect {
+         anchors.fill: parent
+         anchors.margins: -root._pad
+-        fragmentShader: Qt.resolvedUrl("../Shaders/qsb/elevation_rect.frag.qsb")
++        fragmentShader: Qt.resolvedUrl("../Shaders/qsb/p5_plate.frag.qsb")
++
++        readonly property real a: root.targetColor.a
+ 
+         property real widthPx: width
+         property real heightPx: height
+-        property real borderWidth: root.borderWidth
++        property real phase: root._flowing ? P5.flow : 0
+         property vector4d rectPx: Qt.vector4d(root._pad + root.sourceX, root._pad + root.sourceY, root.sourceWidth, root.sourceHeight)
+-        property vector4d cornerRadius: Qt.vector4d(root.topLeftRadius, root.topRightRadius, root.bottomRightRadius, root.bottomLeftRadius)
+-        property vector4d fillColor: Qt.vector4d(root.targetColor.r, root.targetColor.g, root.targetColor.b, root.targetColor.a)
+-        property vector4d borderColor: Qt.vector4d(root.borderColor.r, root.borderColor.g, root.borderColor.b, root.borderColor.a)
++        property vector4d quadA: Qt.vector4d(root._j(0), root._j(1), root._j(2), root._j(3))
++        property vector4d quadB: Qt.vector4d(root._j(4), root._j(5), root._j(6), root._j(7))
++        property vector4d shape: Qt.vector4d(root.p5Cut, root.p5Cut, root.p5BorderWidth, 0)
++        property vector4d fillColor: P5.vec(root.p5Fill)
++        property vector4d borderColor: P5.vec(root.p5Border)
++        property vector4d rimColor: root.p5Dressed ? P5.vec(P5.alpha(P5.paper, 0.22)) : Qt.vector4d(0, 0, 0, 0)
++        property vector4d rimParam: Qt.vector4d(7, 1, 0, 0)
++        property vector4d slabColor: root.p5Dressed ? P5.vec(P5.alpha(root.p5SlabColor, Math.max(0.9, a))) : Qt.vector4d(0, 0, 0, 0)
++        property vector4d slabParam: Qt.vector4d(root.p5SlabOffset.x, root.p5SlabOffset.y, root.p5SlabRotation * Math.PI / 180, 0)
++        property vector4d slab2Color: root.p5Dressed ? P5.vec(P5.alpha(root.p5Slab2Color, Math.max(0.9, a))) : Qt.vector4d(0, 0, 0, 0)
++        property vector4d slab2Param: Qt.vector4d(root.p5Slab2Offset.x, root.p5Slab2Offset.y, root.p5Slab2Rotation * Math.PI / 180, 0)
+         property vector4d shadowColor: Qt.vector4d(root.shadowColor.r, root.shadowColor.g, root.shadowColor.b, root.shadowEnabled ? root.shadowColor.a * root.shadowOpacity : 0)
+         property vector4d shadowParam: Qt.vector4d(Math.max(0, root.shadowBlurPx), root.shadowSpreadPx, root.shadowOffsetX, root.shadowOffsetY)
+-        property vector4d ambientParam: Qt.vector4d(root._ambient.blurPx, root._ambient.spreadPx, root.shadowEnabled ? root._ambient.alpha * root.shadowOpacity : 0, 0)
++        property vector4d accentColor: P5.vec(P5.violet)
++        property vector4d fx: Qt.vector4d(0, root.p5Stripes, root.p5Sheen, 0)
+     }
+ }

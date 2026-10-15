@@ -1,0 +1,79 @@
+diff --git a/DankCommon/Widgets/DankSlider.qml b/DankCommon/Widgets/DankSlider.qml
+index 57695a4..f6a793d 100644
+--- a/DankCommon/Widgets/DankSlider.qml
++++ b/DankCommon/Widgets/DankSlider.qml
+@@ -81,11 +81,20 @@ Item {
+ 
+             width: parent.width - (leftIconWidth + rightIconWidth + (slider.leftIcon.length > 0 ? Style.spacingM : 0) + (slider.rightIcon.length > 0 ? Style.spacingM : 0))
+             height: 12
+-            radius: Style.cornerRadius
+-            color: Style.withAlpha(slider.trackColor, slider.trackOpacity)
++            radius: 0
++            // P5：轨道、填充、滑块都是斜切板
++            color: "transparent"
+             anchors.verticalCenter: parent.verticalCenter
+             clip: false
+ 
++            P5Plate {
++                anchors.fill: parent
++                skew: P5.slant(height)
++                fillColor: P5.alpha(P5.ink, Math.max(0.6, slider.trackOpacity))
++                borderWidth: 1
++                borderColor: P5.alpha(P5.lilac, slider.enabled ? 0.3 : 0.12)
++            }
++
+             StyledRect {
+                 id: sliderFill
+                 height: parent.height
+@@ -101,7 +110,16 @@ Item {
+                     const endPoint = handleLeft - 3;
+                     return Math.max(0, Math.min(sliderTrack.width, endPoint));
+                 }
+-                color: slider.enabled ? Style.primary : Style.withAlpha(Style.onSurface, 0.12)
++                color: "transparent"
++
++                P5Plate {
++                    anchors.fill: parent
++                    visible: parent.width > 0
++                    skew: P5.slant(height)
++                    fillColor: slider.enabled ? P5.violet : Style.withAlpha(Style.onSurface, 0.12)
++                    accentColor: P5.lilac
++                    stripes: slider.enabled ? 0.12 : 0
++                }
+             }
+ 
+             StyledRect {
+@@ -109,9 +127,9 @@ Item {
+ 
+                 property bool active: sliderMouseArea.containsMouse || sliderMouseArea.pressed || slider.isDragging
+ 
+-                width: 4
+-                height: 20
+-                radius: Style.cornerRadius
++                width: 6
++                height: 22
++                radius: 0
+                 x: {
+                     const range = slider.maximum - slider.minimum;
+                     const rawRatio = range === 0 ? 0 : (slider.value - slider.minimum) / range;
+@@ -120,10 +138,19 @@ Item {
+                     return Math.max(0, Math.min(travel, travel * ratio));
+                 }
+                 anchors.verticalCenter: parent.verticalCenter
+-                color: slider.enabled ? Style.primary : Style.withAlpha(Style.onSurface, 0.12)
++                color: "transparent"
+                 border.width: 0
+                 border.color: slider.thumbOutlineColor
+ 
++                // 白色刀片 + 错位紫板，按住时紫板外推
++                P5Plate {
++                    anchors.fill: parent
++                    skew: P5.slant(height) / 2
++                    fillColor: slider.enabled ? P5.paper : Style.withAlpha(Style.onSurface, 0.3)
++                    slabColor: slider.enabled ? P5.violet : "transparent"
++                    slabOffset: sliderHandle.active ? Qt.point(3, 3) : Qt.point(2, 1)
++                }
++
+                 StyledRect {
+                     anchors.fill: parent
+                     radius: Style.cornerRadius

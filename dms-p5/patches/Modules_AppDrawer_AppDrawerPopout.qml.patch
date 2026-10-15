@@ -1,0 +1,110 @@
+diff --git a/Modules/AppDrawer/AppDrawerPopout.qml b/Modules/AppDrawer/AppDrawerPopout.qml
+index 7273d72..091e53a 100644
+--- a/Modules/AppDrawer/AppDrawerPopout.qml
++++ b/Modules/AppDrawer/AppDrawerPopout.qml
+@@ -2,6 +2,7 @@ import QtQuick
+ import qs.Common
+ import qs.Modals.DankLauncherV2
+ import qs.Widgets
++import qs.Modules.P5
+ 
+ DankPopout {
+     id: appDrawerPopout
+@@ -41,19 +42,15 @@ DankPopout {
+         openWithQuery(query);
+     }
+ 
+-    popupWidth: 560
+-    popupHeight: 640
++    // P5：左轮菜单自己画造型（拉长的五边形），不要默认面板
++    popupWidth: 640
++    popupHeight: 720
+     triggerWidth: 40
+     positioning: ""
+-    contentHandlesKeys: contentLoader.item?.launcherContent?.editMode ?? false
++    p5Bare: true
++    contentHandlesKeys: true
+ 
+-    onBackgroundClicked: {
+-        if (contentLoader.item?.launcherContent?.editMode) {
+-            contentLoader.item.launcherContent.closeEditMode();
+-            return;
+-        }
+-        close();
+-    }
++    onBackgroundClicked: close()
+ 
+     onOpened: {
+         var lc = contentLoader.item?.launcherContent;
+@@ -61,7 +58,7 @@ DankPopout {
+             return;
+ 
+         const query = _pendingQuery;
+-        const mode = _pendingMode || SessionData.appDrawerLastMode || "apps";
++        const mode = _pendingMode || "apps";
+         _pendingMode = "";
+         _pendingQuery = "";
+ 
+@@ -80,8 +77,6 @@ DankPopout {
+                 lc.controller.performSearch();
+             }
+         }
+-        lc.resetScroll?.();
+-        lc.actionPanel?.hide();
+     }
+ 
+     Connections {
+@@ -94,47 +89,16 @@ DankPopout {
+     }
+ 
+     content: Component {
+-        Rectangle {
++        Item {
+             id: contentContainer
+ 
+-            LayoutMirroring.enabled: I18n.isRtl
+-            LayoutMirroring.childrenInherit: true
+-
+-            property alias launcherContent: launcherContent
+-
+-            color: "transparent"
+-
+-            QtObject {
+-                id: modalAdapter
+-                property bool spotlightOpen: appDrawerPopout.shouldBeVisible
+-                property bool isClosing: appDrawerPopout.isClosing
+-
+-                function hide() {
+-                    appDrawerPopout.close();
+-                }
+-            }
++            property alias launcherContent: revolver
+ 
+-            FocusScope {
++            P5Revolver {
++                id: revolver
+                 anchors.fill: parent
+-                focus: true
+-
+-                LauncherContent {
+-                    id: launcherContent
+-                    anchors.fill: parent
+-                    parentModal: modalAdapter
+-                    viewModeContext: "appDrawer"
+-                    transientSurfaceTracker: appDrawerPopout.transientSurfaceTracker
+-                }
+-
+-                Keys.onEscapePressed: event => {
+-                    if (launcherContent.editMode) {
+-                        launcherContent.closeEditMode();
+-                        event.accepted = true;
+-                        return;
+-                    }
+-                    appDrawerPopout.close();
+-                    event.accepted = true;
+-                }
++                open: appDrawerPopout.shouldBeVisible || appDrawerPopout.isClosing
++                onCloseRequested: appDrawerPopout.close()
+             }
+         }
+     }

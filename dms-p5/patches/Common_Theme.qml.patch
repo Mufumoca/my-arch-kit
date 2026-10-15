@@ -1,0 +1,25 @@
+diff --git a/Common/Theme.qml b/Common/Theme.qml
+index e152b86..f8f8bdb 100644
+--- a/Common/Theme.qml
++++ b/Common/Theme.qml
+@@ -1141,7 +1141,8 @@ Singleton {
+         if (typeof SessionData !== "undefined" && SessionData.isGreeterMode && typeof GreetdSettings !== "undefined") {
+             return GreetdSettings.cornerRadius;
+         }
+-        return typeof SettingsData !== "undefined" ? SettingsData.cornerRadius : 12;
++        // P5：所有界面直角，造型交给 P5Plate 的斜切与切角
++        return 0;
+     }
+ 
+     property string fontFamily: {
+@@ -1159,8 +1160,9 @@ Singleton {
+     }
+ 
+     function resolvedFontFamily(family) {
++        // P5：未自定义字体时用 Barlow（中文由系统回落到思源黑体）
+         if (family === defaultFontFamily)
+-            return DankCommon.Fonts.sans;
++            return DankCommon.P5.bodyFont;
+         return family;
+     }
+ 

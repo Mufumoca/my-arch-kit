@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>P5 Reference — 组件参考包</title>
+<style>
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; min-height: 100%; }
+  body {
+    background:
+      radial-gradient(circle at 12% 8%, rgba(230,0,18,.28), transparent 34%),
+      radial-gradient(circle at 92% 92%, rgba(230,0,18,.20), transparent 34%),
+      #050505;
+    color: #fff;
+    font-family: "Nimbus Sans Narrow", Arial, Helvetica, sans-serif;
+    padding: 48px clamp(16px, 5vw, 72px) 96px;
+  }
+  .halftone {
+    position: fixed; inset: 0; pointer-events: none; opacity: .06; z-index: 0;
+    background-image: radial-gradient(#fff 1px, transparent 1.4px);
+    background-size: 12px 12px;
+  }
+  header { position: relative; z-index: 1; margin-bottom: 40px; }
+  .kicker {
+    font-size: 13px; font-weight: 900; letter-spacing: 7px; color: #e60012;
+    text-transform: uppercase;
+  }
+  h1 {
+    margin: 6px 0 0; font-size: clamp(46px, 9vw, 108px); font-weight: 1000;
+    font-style: italic; line-height: .82; letter-spacing: -4px;
+    transform: skew(-7deg);
+    text-shadow: 5px 5px 0 #e60012;
+  }
+  .sub { margin-top: 18px; font-size: 14px; letter-spacing: 3px; color: #bbb; max-width: 760px; line-height: 1.7; }
+  .rule { height: 10px; width: 46%; background: #e60012; transform: rotate(-2.5deg); margin: 28px 0 44px; }
+
+  .grid {
+    position: relative; z-index: 1;
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 26px;
+  }
+  .card {
+    position: relative; display: block; text-decoration: none; color: inherit;
+    background: #0d0d0d; border: 3px solid #fff; padding: 24px 22px 60px;
+    transition: transform .18s ease, background .18s ease, box-shadow .18s ease;
+    overflow: hidden;
+  }
+  .card::before {
+    content: ""; position: absolute; left: -25%; bottom: 26px; width: 150%;
+    height: 22px; background: #e60012; transform: rotate(-7deg); opacity: .85;
+  }
+  .card::after {
+    content: attr(data-idx); position: absolute; right: 12px; top: -6px;
+    font-size: 64px; font-weight: 1000; font-style: italic; color: #1c1c1c; z-index: 0;
+  }
+  .card:hover {
+    transform: translate(-4px, -4px) rotate(-1deg);
+    background: #141414;
+    box-shadow: 9px 9px 0 #e60012;
+  }
+  .card h2 {
+    position: relative; z-index: 1; margin: 0 0 10px; font-size: 27px;
+    font-weight: 1000; font-style: italic; letter-spacing: -.5px; line-height: 1;
+  }
+  .card .zh { position: relative; z-index: 1; color: #e60012; font-size: 13px; letter-spacing: 3px; font-weight: 900; }
+  .card p { position: relative; z-index: 1; margin: 14px 0 0; font-size: 13.5px; line-height: 1.6; color: #cfcfcf; }
+  .tags { position: relative; z-index: 1; margin-top: 16px; display: flex; flex-wrap: wrap; gap: 7px; }
+  .tag {
+    font-size: 10.5px; font-weight: 900; letter-spacing: 1.5px; padding: 4px 9px;
+    background: #fff; color: #000; transform: skew(-12deg);
+  }
+  .tag.red { background: #e60012; color: #fff; }
+  .open {
+    position: absolute; right: 18px; bottom: 14px; z-index: 2;
+    font-size: 12px; font-weight: 1000; letter-spacing: 2px;
+  }
+  footer { position: relative; z-index: 1; margin-top: 64px; font-size: 12px; color: #777; letter-spacing: 2px; line-height: 1.9; }
+  footer a { color: #e60012; text-decoration: none; }
+</style>
+</head>
+<body>
+<div class="halftone"></div>
+
+<header>
+  <div class="kicker">Phantom Thieves · Reference Kit</div>
+  <h1>P5 REFERENCE</h1>
+  <div class="sub">
+    收集自 CodePen 的 Persona 5 风格 UI 片段，已本地化并修好失效的依赖。<br>
+    每个目录都是独立可离线打开的 <code>index.html</code>。点击卡片在浏览器里查看。
+  </div>
+  <div class="rule"></div>
+</header>
+
+<main class="grid">
+
+  <a class="card" data-idx="01" href="menu-3d/index.html" target="_blank">
+    <h2>MENU 3D</h2>
+    <div class="zh">主菜单 · 斜切光标</div>
+    <p>红/蓝双层斜切多边形光标随机形变抖动，鼠标/方向键选择 9 个菜单项。</p>
+    <div class="tags"><span class="tag red">HTML</span><span class="tag">CSS</span><span class="tag">Snap.svg</span></div>
+    <span class="open">OPEN →</span>
+  </a>
+
+  <a class="card" data-idx="02" href="menu-hover-effect/index.html" target="_blank">
+    <h2>MENU HOVER</h2>
+    <div class="zh">导航 · 悬停炸开</div>
+    <p>悬停时红+青斜块弹出并 jelly 抖动，文字图切换 + tiltBounce 回弹。</p>
+    <div class="tags"><span class="tag red">HTML</span><span class="tag">CSS only</span><span class="tag">SCSS</span></div>
+    <span class="open">OPEN →</span>
+  </a>
+
+  <a class="card" data-idx="03" href="menu-nav/index.html" target="_blank">
+    <h2>MENU NAV</h2>
+    <div class="zh">导航 · 3D 扇形</div>
+    <p>7 项黑底黄边倾斜标签，rotate3d 扇形排布，悬停黄色投影放大滑出。</p>
+    <div class="tags"><span class="tag red">HTML</span><span class="tag">CSS only</span><span class="tag">无 JS</span></div>
+    <span class="open">OPEN →</span>
+  </a>
+
+  <a class="card" data-idx="04" href="calendar/index.html" target="_blank">
+    <h2>CALENDAR</h2>
+    <div class="zh">日历 · 每日卡片</div>
+    <p>5 天卡片，今天红底上浮；实时时钟，触摸左右滑动切换日期。</p>
+    <div class="tags"><span class="tag red">HTML</span><span class="tag">CSS</span><span class="tag">JS</span></div>
+    <span class="open">OPEN →</span>
+  </a>
+
+  <a class="card" data-idx="05" href="toggle-switch/index.html" target="_blank">
+    <h2>TOGGLE SWITCH</h2>
+    <div class="zh">开关 · ON/OFF</div>
+    <p>白/粉红配色开关，切换时指针变形、文字旋转并整块抖动。</p>
+    <div class="tags"><span class="tag red">HTML</span><span class="tag">CSS only</span><span class="tag">Luckiest Guy</span></div>
+    <span class="open">OPEN →</span>
+  </a>
+
+  <a class="card" data-idx="06" href="take-your-heart/index.html" target="_blank">
+    <h2>TAKE YOUR HEART</h2>
+    <div class="zh">LOGO · 火焰变形</div>
+    <p>「Take Your Heart」标志，SVG path 火焰 morph 循环 + 小圆点沿路径环绕。</p>
+    <div class="tags"><span class="tag red">SVG</span><span class="tag">GSAP 3</span><span class="tag">MorphSVG</span></div>
+    <span class="open">OPEN →</span>
+  </a>
+
+  <a class="card" data-idx="07" href="sms/index.html" target="_blank">
+    <h2>P5 SMS</h2>
+    <div class="zh">短信 · 对话气泡</div>
+    <p>Vue 驱动的 P5 风格短信对话，气泡遮罩 + 打字机逐字动画，自动滚屏。</p>
+    <div class="tags"><span class="tag red">Vue 2</span><span class="tag">SVG mask</span><span class="tag">GSAP</span></div>
+    <span class="open">OPEN →</span>
+  </a>
+
+  <a class="card" data-idx="08" href="star-background/index.html" target="_blank">
+    <h2>STAR BACKGROUND</h2>
+    <div class="zh">背景 · 星星动画</div>
+    <p>黑白星星随机散布，不断放大/缩小循环，可作过场或菜单背景。</p>
+    <div class="tags"><span class="tag red">CSS anim</span><span class="tag">jQuery</span><span class="tag">SVG</span></div>
+    <span class="open">OPEN →</span>
+  </a>
+
+  <a class="card" data-idx="09" href="p3-menu/index.html" target="_blank">
+    <h2>P3 MENU</h2>
+    <div class="zh">主菜单 · Reload 风格</div>
+    <p>Persona 3 Reload 菜单：蓝底渐变，选中项红白描边倾斜放大，方向键切换。</p>
+    <div class="tags"><span class="tag red">HTML</span><span class="tag">SCSS</span><span class="tag">JS</span></div>
+    <span class="open">OPEN →</span>
+  </a>
+
+  <a class="card" data-idx="10" href="interstitial/index.html" target="_blank">
+    <h2>INTERSTITIAL</h2>
+    <div class="zh">过场 · NEXT 字幕</div>
+    <p>纯 CSS 过场动画：黄色斜带旋转拍入，「NEXT」文字滑入居中后整块压扁消失。</p>
+    <div class="tags"><span class="tag red">CSS only</span><span class="tag">无 JS</span><span class="tag">keyframes</span></div>
+    <span class="open">OPEN →</span>
+  </a>
+
+  <a class="card" data-idx="11" href="save-carousel/index.html" target="_blank">
+    <h2>SAVE CAROUSEL</h2>
+    <div class="zh">存档 · 轮转条幅</div>
+    <p>复刻 P5R 存档界面：长条胶片沿右侧转轴扇形铺开，切换时整组轮转，焦点条弹出带齿孔的主题色底片。</p>
+    <div class="tags"><span class="tag red">HTML</span><span class="tag">SVG</span><span class="tag">JS</span><span class="tag">原创复刻</span></div>
+    <span class="open">OPEN →</span>
+  </a>
+
+</main>
+
+<footer>
+  来源均为 CodePen，原始作者与链接见 <code>AGENTS.md</code>。<br>
+  全部已本地化：字体、图片、第三方库、失效 CDN 资源均已下载到包内，断网也能打开。
+</footer>
+
+</body>
+</html>

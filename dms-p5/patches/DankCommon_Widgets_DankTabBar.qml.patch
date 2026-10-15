@@ -1,0 +1,86 @@
+diff --git a/DankCommon/Widgets/DankTabBar.qml b/DankCommon/Widgets/DankTabBar.qml
+index 7d9c7dd..8508b58 100644
+--- a/DankCommon/Widgets/DankTabBar.qml
++++ b/DankCommon/Widgets/DankTabBar.qml
+@@ -123,6 +123,41 @@ FocusScope {
+                 width: tabBar.equalWidthTabs ? (tabBar.width - tabBar.spacing * Math.max(0, tabRepeater.count - 1)) / Math.max(1, tabRepeater.count) : Math.max(contentCol.implicitWidth + Style.spacingXL, 64)
+                 height: tabBar.tabHeight
+ 
++                // P5：当前标签是一块歪斜的淡紫板 + 粗白框 + 粉色错位板，切换时带过冲地弹出
++                P5Plate {
++                    anchors.fill: parent
++                    anchors.topMargin: 2
++                    anchors.bottomMargin: 2
++                    seed: index + 101
++                    jitter: 2
++                    skew: P5.slant(height) / 2
++                    rotation: -1.5
++                    fillColor: P5.violet
++                    borderWidth: 3
++                    borderColor: P5.paper
++                    slabColor: P5.pink
++                    slabOffset: Qt.point(-5, 4)
++                    slabRotation: -3
++                    opacity: tabItem.isActive ? 1 : 0
++                    scale: tabItem.isActive ? 1 : 0.7
++                    visible: opacity > 0
++
++                    Behavior on opacity {
++                        enabled: P5.motionEnabled
++                        NumberAnimation {
++                            duration: 110
++                        }
++                    }
++                    Behavior on scale {
++                        enabled: P5.motionEnabled
++                        NumberAnimation {
++                            duration: 240
++                            easing.type: Easing.BezierSpline
++                            easing.bezierCurve: P5.punchCurve
++                        }
++                    }
++                }
++
+                 Column {
+                     id: contentCol
+                     anchors.centerIn: parent
+@@ -132,7 +167,7 @@ FocusScope {
+                         name: modelData.icon || ""
+                         anchors.horizontalCenter: parent.horizontalCenter
+                         size: Style.iconSize
+-                        color: tabItem.isActive ? Style.primary : Style.surfaceText
++                        color: tabItem.isActive ? P5.onViolet : Style.surfaceText
+                         visible: hasIcon
+                     }
+ 
+@@ -140,8 +175,8 @@ FocusScope {
+                         text: modelData.text || ""
+                         anchors.horizontalCenter: parent.horizontalCenter
+                         font.pixelSize: Style.fontSizeMedium
+-                        color: tabItem.isActive ? Style.primary : Style.surfaceText
+-                        font.weight: Font.Medium
++                        color: tabItem.isActive ? P5.onViolet : Style.surfaceText
++                        font.weight: tabItem.isActive ? Font.Bold : Font.Medium
+                         visible: hasText
+                     }
+                 }
+@@ -163,7 +198,8 @@ FocusScope {
+ 
+                 DankRipple {
+                     id: tabRipple
+-                    cornerRadius: Style.cornerRadius
++                    cornerRadius: 0
++                    enableRipple: false
+                 }
+ 
+                 MouseArea {
+@@ -193,7 +229,8 @@ FocusScope {
+         topRightRadius: Style.cornerRadius
+         bottomLeftRadius: 0
+         bottomRightRadius: 0
+-        color: Style.primary
++        // P5：选中态已由斜切板表达，下划线只保留位置逻辑
++        color: "transparent"
+         visible: false
+ 
+         property bool animationEnabled: false

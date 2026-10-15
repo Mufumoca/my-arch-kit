@@ -1,0 +1,287 @@
+diff --git a/Modules/ControlCenter/Widgets/CompoundPill.qml b/Modules/ControlCenter/Widgets/CompoundPill.qml
+index e09c447..89056e1 100644
+--- a/Modules/ControlCenter/Widgets/CompoundPill.qml
++++ b/Modules/ControlCenter/Widgets/CompoundPill.qml
+@@ -1,8 +1,11 @@
+ import QtQuick
++import qs.DankCommon.Common
++import qs.DankCommon.Widgets
+ import qs.Common
+ import qs.Widgets
+ 
+-Rectangle {
++// P5：斜切的墨色板；左边图标块（开启时淡紫 + 墨字，关闭时梅紫），右边粗体标题 + 丁香色副标题，最右一个 ▶ 表示可展开。
++Item {
+     id: root
+ 
+     LayoutMirroring.enabled: I18n.isRtl
+@@ -23,172 +26,116 @@ Rectangle {
+ 
+     width: parent ? parent.width : 220
+     height: 60
+-    radius: Theme.cornerRadius
+ 
+-    readonly property color _containerBg: Theme.ccPillInactiveBg
++    readonly property int seed: (primaryText.length * 13 + iconName.length * 7) % 97
+ 
+-    color: {
+-        const baseColor = bodyMouse.containsMouse ? Theme.ccPillInactiveHoverBg : _containerBg;
+-        return baseColor;
+-    }
+-    border.color: Theme.outlineMedium
+-    border.width: Theme.layerOutlineWidth
+-    antialiasing: true
+-
+-    readonly property color _labelPrimary: Theme.surfaceText
+-    readonly property color _labelSecondary: Theme.surfaceVariantText
+-    readonly property color _tileBgActive: Theme.ccTileActiveBg
+-    readonly property color _tileBgInactive: {
+-        return Theme.ccTileInactiveBg;
++    P5Plate {
++        anchors.fill: parent
++        anchors.topMargin: 2
++        anchors.bottomMargin: 2
++        skew: 14
++        jitter: 2
++        seed: root.seed
++        fillColor: root.expanded ? P5.plumRaised : (bodyMouse.containsMouse ? P5.plum : P5.ink)
++        borderWidth: 2
++        borderColor: root.expanded ? P5.violet : (root.isActive ? P5.paper : P5.alpha(P5.lilac, 0.5))
++        slabColor: root.isActive ? P5.violet : "transparent"
++        slabOffset: Qt.point(4, 4)
+     }
+-    readonly property color _tileRingActive: Theme.ccTileRing
+-    readonly property color _tileRingInactive: Theme.outlineHeavy
+-    readonly property color _tileIconActive: Theme.ccTileActiveText
+-    readonly property color _tileIconInactive: Theme.ccTileInactiveIcon
+-
+-    property int _padH: Theme.spacingS
+-    property int _tileSize: 48
+-    property int _tileRadius: Theme.cornerRadius
+ 
+-    Rectangle {
+-        id: rightHoverOverlay
+-        anchors.fill: parent
+-        radius: root.radius
+-        z: 0
+-        visible: false
+-        color: Theme.hoverTint(_containerBg)
+-        opacity: 0.08
+-        antialiasing: true
+-        Behavior on opacity {
+-            NumberAnimation {
+-                duration: Theme.shortDuration
++    Item {
++        id: iconTile
++        x: 8
++        anchors.verticalCenter: parent.verticalCenter
++        width: 50
++        height: 42
++        z: 1
++
++        P5Plate {
++            anchors.fill: parent
++            skew: 12
++            jitter: 1.5
++            seed: root.seed + 3
++            fillColor: tileMouse.pressed ? P5.blood : (root.isActive ? P5.violet : (tileMouse.containsMouse ? P5.plumRaised : P5.plum))
++            borderWidth: root.isActive ? 0 : 1.5
++            borderColor: P5.alpha(P5.paper, 0.6)
++            slabColor: root.isActive ? P5.pink : "transparent"
++            slabOffset: Qt.point(3, 3)
++        }
++        DankIcon {
++            id: pillIcon
++            anchors.centerIn: parent
++            name: root.iconName
++            size: Theme.iconSize
++            color: root.isActive ? P5.ink : P5.lilac
++
++            DankBlink {
++                target: pillIcon
++                running: root.iconBlinking
+             }
+         }
++        MouseArea {
++            id: tileMouse
++            anchors.fill: parent
++            hoverEnabled: true
++            cursorShape: Qt.PointingHandCursor
++            onClicked: root.toggled()
++        }
+     }
+ 
+-    DankRipple {
+-        id: bodyRipple
+-        cornerRadius: root.radius
+-    }
+-
+-    Row {
+-        id: row
+-        anchors.fill: parent
+-        anchors.leftMargin: _padH
+-        anchors.rightMargin: Theme.spacingM
+-        spacing: Theme.spacingM
+-
+-        Rectangle {
+-            id: iconTile
+-            z: 1
+-            width: _tileSize
+-            height: _tileSize
++    Item {
++        id: body
++        anchors.left: iconTile.right
++        anchors.leftMargin: 12
++        anchors.right: parent.right
++        anchors.rightMargin: 14
++        height: parent.height
++
++        Column {
++            anchors.left: parent.left
++            anchors.right: chevron.left
++            anchors.rightMargin: 4
+             anchors.verticalCenter: parent.verticalCenter
+-            radius: _tileRadius
+-            color: isActive ? _tileBgActive : _tileBgInactive
+-            border.color: isActive ? _tileRingActive : Theme.outlineMedium
+-            border.width: isActive ? 1 : Theme.layerOutlineWidth
+-            antialiasing: true
+-
+-            Rectangle {
+-                anchors.fill: parent
+-                radius: _tileRadius
+-                color: Theme.hoverTint(iconTile.color)
+-                opacity: tileMouse.pressed ? 0.3 : (tileMouse.containsMouse ? 0.2 : 0.0)
+-                visible: opacity > 0
+-                antialiasing: true
+-                Behavior on opacity {
+-                    NumberAnimation {
+-                        duration: Theme.shortDuration
+-                    }
+-                }
++            spacing: 0
++
++            Text {
++                width: parent.width
++                text: root.primaryText
++                color: P5.paper
++                font.family: P5.bodyFont
++                font.pixelSize: 15
++                font.weight: Font.Black
++                elide: Text.ElideRight
+             }
+-
+-            DankIcon {
+-                id: pillIcon
+-                anchors.centerIn: parent
+-                name: iconName
+-                size: Theme.iconSize
+-                color: isActive ? _tileIconActive : _tileIconInactive
+-
+-                DankBlink {
+-                    target: pillIcon
+-                    running: root.iconBlinking
+-                }
+-            }
+-
+-            DankRipple {
+-                id: tileRipple
+-                cornerRadius: _tileRadius
+-            }
+-
+-            MouseArea {
+-                id: tileMouse
+-                anchors.fill: parent
+-                hoverEnabled: true
+-                cursorShape: Qt.PointingHandCursor
+-                onPressed: mouse => tileRipple.trigger(mouse.x, mouse.y)
+-                onClicked: root.toggled()
++            Text {
++                width: parent.width
++                text: root.secondaryText
++                color: root.isActive ? P5.violet : P5.lilac
++                font.family: P5.labelFont
++                font.pixelSize: 13
++                font.italic: true
++                font.weight: Font.Bold
++                visible: text.length > 0
++                elide: Text.ElideRight
+             }
+         }
++        Text {
++            id: chevron
++            anchors.right: parent.right
++            anchors.verticalCenter: parent.verticalCenter
++            visible: root.showExpandArea
++            text: root.expanded ? "▼" : "▶"
++            color: root.expanded || bodyMouse.containsMouse ? P5.violet : P5.alpha(P5.lilac, 0.6)
++            font.pixelSize: 11
++        }
+ 
+-        Item {
+-            id: body
+-            width: row.width - iconTile.width - row.spacing
+-            height: row.height
+-
+-            Column {
+-                anchors.left: parent.left
+-                anchors.right: parent.right
+-                anchors.verticalCenter: parent.verticalCenter
+-                spacing: Theme.spacingXXS
+-
+-                StyledText {
+-                    width: parent.width
+-                    text: root.primaryText
+-                    color: _labelPrimary
+-                    font.pixelSize: Theme.fontSizeMedium
+-                    font.weight: Font.Medium
+-                    elide: Text.ElideRight
+-                    wrapMode: Text.NoWrap
+-                    horizontalAlignment: Text.AlignLeft
+-                }
+-                StyledText {
+-                    width: parent.width
+-                    text: root.secondaryText
+-                    color: _labelSecondary
+-                    font.pixelSize: Theme.fontSizeSmall
+-                    visible: text.length > 0
+-                    elide: Text.ElideRight
+-                    wrapMode: Text.NoWrap
+-                    horizontalAlignment: Text.AlignLeft
+-                }
+-            }
+-
+-            MouseArea {
+-                id: bodyMouse
+-                anchors.fill: parent
+-                hoverEnabled: true
+-                cursorShape: Qt.PointingHandCursor
+-                onEntered: {
+-                    rightHoverOverlay.visible = true;
+-                    rightHoverOverlay.opacity = 0.08;
+-                }
+-                onExited: {
+-                    rightHoverOverlay.opacity = 0.0;
+-                    rightHoverOverlay.visible = false;
+-                }
+-                onPressed: mouse => {
+-                    const pos = mapToItem(root, mouse.x, mouse.y);
+-                    bodyRipple.trigger(pos.x, pos.y);
+-                    rightHoverOverlay.opacity = 0.16;
+-                }
+-                onReleased: rightHoverOverlay.opacity = containsMouse ? 0.08 : 0.0
+-                onClicked: root.expandClicked()
+-                onWheel: function (ev) {
+-                    root.wheelEvent(ev);
+-                }
+-            }
++        MouseArea {
++            id: bodyMouse
++            anchors.fill: parent
++            hoverEnabled: true
++            cursorShape: Qt.PointingHandCursor
++            onClicked: root.expandClicked()
++            onWheel: ev => root.wheelEvent(ev)
+         }
+     }
+ 

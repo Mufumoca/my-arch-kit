@@ -1,0 +1,78 @@
+diff --git a/Modules/DankIsland/IslandSatelliteHost.qml b/Modules/DankIsland/IslandSatelliteHost.qml
+index 1d5ac17..c4a63c3 100644
+--- a/Modules/DankIsland/IslandSatelliteHost.qml
++++ b/Modules/DankIsland/IslandSatelliteHost.qml
+@@ -87,6 +87,9 @@ Item {
+     readonly property real islandCurrentAlong: root.islandSurface?.currentAlongPos ?? 0
+     readonly property real islandCurrentAlongEnd: root.islandCurrentAlong + (root.islandSurface?.currentVisualAlong ?? 0)
+     readonly property real satelliteGap: root.setting("islandSatelliteGap")
++    // P5：展开的岛比栏两侧留出的空间更宽时，被盖住的那一侧整排组件向上滑出让位，收起后再落回来
++    readonly property bool leadingCovered: root.controller.expanded && root.islandTargetAlong - 6 < leadingInput.alongPos + leadingInput.alongSize
++    readonly property bool trailingCovered: root.controller.expanded && root.islandTargetAlongEnd + 6 > trailingInput.alongPos
+ 
+     readonly property real leadingEdgeSpread: root.motionRunning ? Math.abs(root.islandStartAlong - root.islandTargetAlong) : 0
+     readonly property real trailingEdgeSpread: root.motionRunning ? Math.abs(root.islandStartAlongEnd - root.islandTargetAlongEnd) : 0
+@@ -546,6 +549,31 @@ Item {
+             id: leadingWidgetSection
+ 
+             anchors.fill: parent
++            enabled: !root.leadingCovered
++            opacity: root.leadingCovered ? 0 : 1
++            transform: Translate {
++                y: root.leadingCovered && !root.isVertical ? (root.crossFar ? 1 : -1) * root.barThickness * 1.4 : 0
++                x: root.leadingCovered && root.isVertical ? (root.crossFar ? 1 : -1) * root.barThickness * 1.4 : 0
++
++                Behavior on y {
++                    NumberAnimation {
++                        duration: root.leadingCovered ? 160 : 320
++                        easing.type: root.leadingCovered ? Easing.InCubic : Easing.OutBack
++                    }
++                }
++                Behavior on x {
++                    NumberAnimation {
++                        duration: root.leadingCovered ? 160 : 320
++                        easing.type: root.leadingCovered ? Easing.InCubic : Easing.OutBack
++                    }
++                }
++            }
++
++            Behavior on opacity {
++                NumberAnimation {
++                    duration: 160
++                }
++            }
+             objectName: "leftSection"
+             axis: satelliteAxis
+             widgetsModel: leftWidgetsModel
+@@ -588,6 +616,31 @@ Item {
+             id: trailingWidgetSection
+ 
+             anchors.fill: parent
++            enabled: !root.trailingCovered
++            opacity: root.trailingCovered ? 0 : 1
++            transform: Translate {
++                y: root.trailingCovered && !root.isVertical ? (root.crossFar ? 1 : -1) * root.barThickness * 1.4 : 0
++                x: root.trailingCovered && root.isVertical ? (root.crossFar ? 1 : -1) * root.barThickness * 1.4 : 0
++
++                Behavior on y {
++                    NumberAnimation {
++                        duration: root.trailingCovered ? 160 : 320
++                        easing.type: root.trailingCovered ? Easing.InCubic : Easing.OutBack
++                    }
++                }
++                Behavior on x {
++                    NumberAnimation {
++                        duration: root.trailingCovered ? 160 : 320
++                        easing.type: root.trailingCovered ? Easing.InCubic : Easing.OutBack
++                    }
++                }
++            }
++
++            Behavior on opacity {
++                NumberAnimation {
++                    duration: 160
++                }
++            }
+             objectName: "rightSection"
+             axis: satelliteAxis
+             widgetsModel: rightWidgetsModel

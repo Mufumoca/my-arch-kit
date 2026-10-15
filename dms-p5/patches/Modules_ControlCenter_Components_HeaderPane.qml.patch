@@ -1,0 +1,274 @@
+diff --git a/Modules/ControlCenter/Components/HeaderPane.qml b/Modules/ControlCenter/Components/HeaderPane.qml
+index 2cbddcb..6967cf2 100644
+--- a/Modules/ControlCenter/Components/HeaderPane.qml
++++ b/Modules/ControlCenter/Components/HeaderPane.qml
+@@ -1,9 +1,12 @@
+ import QtQuick
++import qs.DankCommon.Common
++import qs.DankCommon.Widgets
+ import qs.Common
+ import qs.Services
+ import qs.Widgets
+ 
+-Rectangle {
++// P5：控制中心的“名片”——爆炸星托着头像，Anton 大名字 + 运行时长标签；右边四个斜切动作块（锁 / 电源 / 设置 / 编辑）。
++Item {
+     id: root
+ 
+     LayoutMirroring.enabled: I18n.isRtl
+@@ -25,11 +28,7 @@ Rectangle {
+         active: root.visible && (root.Window.window?.visible ?? false)
+     }
+ 
+-    implicitHeight: 70
+-    radius: Theme.cornerRadius
+-    color: Theme.nestedSurface
+-    border.color: Theme.outlineMedium
+-    border.width: Theme.layerOutlineWidth
++    implicitHeight: 96
+ 
+     MouseArea {
+         anchors.fill: parent
+@@ -38,94 +37,182 @@ Rectangle {
+         onClicked: root.headerTapped()
+     }
+ 
+-    Row {
+-        anchors.left: parent.left
++    // 头像：淡紫爆炸星 + 墨色圆底
++    Item {
++        id: avatar
++        x: 0
+         anchors.verticalCenter: parent.verticalCenter
+-        anchors.leftMargin: Theme.spacingL
+-        anchors.rightMargin: Theme.spacingL
+-        spacing: Theme.spacingM
+-
++        width: 88
++        height: 88
++
++        P5Burst {
++            anchors.fill: parent
++            spikes: 13
++            depth: 0.24
++            seed: 77
++            fillColor: P5.violet
++            strokeColor: P5.paper
++            strokeWidth: 2.5
++            slabColor: P5.ink
++            slabOffset: Qt.point(5, 5)
++        }
++        Rectangle {
++            anchors.centerIn: parent
++            width: 58
++            height: 58
++            radius: 29
++            color: P5.ink
++        }
++        Text {
++            anchors.centerIn: parent
++            visible: ccAvatar.imageStatus !== Image.Ready
++            text: (UserInfoService.username || "?").charAt(0).toUpperCase()
++            color: P5.violet
++            font.family: P5.displayFont
++            font.pixelSize: 34
++        }
+         DankCircularImage {
+-            id: avatarContainer
+-
+-            width: 60
+-            height: 60
++            id: ccAvatar
++            anchors.centerIn: parent
++            visible: imageStatus === Image.Ready
++            width: 54
++            height: 54
+             imageSource: {
+                 if (PortalService.profileImage === "")
+                     return "";
+-
+                 if (PortalService.profileImage.startsWith("/"))
+                     return "file://" + PortalService.profileImage;
+-
+                 return PortalService.profileImage;
+             }
+             fallbackIcon: "person"
+         }
++    }
+ 
+-        Column {
+-            anchors.verticalCenter: parent.verticalCenter
+-            spacing: Theme.spacingXXS
+-
+-            Typography {
+-                text: UserInfoService.fullName || UserInfoService.username || I18n.tr("User")
+-                style: Typography.Style.Subtitle
+-                color: Theme.surfaceText
++    Column {
++        anchors.left: avatar.right
++        anchors.leftMargin: 10
++        anchors.verticalCenter: parent.verticalCenter
++        spacing: 2
++
++        P5Tag {
++            text: "PHANTOM CONTROL"
++            pixelSize: 11
++            fillColor: P5.ink
++            textColor: P5.violet
++            borderWidth: 1.5
++            borderColor: P5.violet
++            tilt: -4
++        }
++        Item {
++            width: nameText.implicitWidth + 6
++            height: nameText.implicitHeight
++            rotation: -2
++            Text {
++                x: 4
++                y: 3
++                text: nameText.text
++                font: nameText.font
++                color: P5.violet
+             }
+-
+-            Typography {
+-                text: DgopService.uptime ? I18n.tr("up", "uptime prefix, e.g. 'up 4h 2m'") + " " + DgopService.uptime.slice(3) : I18n.tr("Unknown")
+-                style: Typography.Style.Caption
+-                color: Theme.surfaceVariantText
++            Text {
++                id: nameText
++                text: (UserInfoService.fullName || UserInfoService.username || I18n.tr("User")).toUpperCase()
++                color: P5.paper
++                font.family: P5.displayFont
++                font.pixelSize: 30
++                font.letterSpacing: 0.5
+             }
+         }
++        Text {
++            text: DgopService.uptime ? ("UP " + DgopService.uptime.slice(3)).toUpperCase() : I18n.tr("Unknown")
++            color: P5.lilac
++            font.family: P5.labelFont
++            font.pixelSize: 12
++            font.italic: true
++            font.weight: Font.Bold
++            font.letterSpacing: 1
++        }
++    }
++
++    component Act: Item {
++        id: act
++        property string icon
++        property string hint
++        property bool on: false
++        property bool danger: false
++        signal hit
++        width: 46
++        height: 40
++        rotation: (icon.length % 2 === 0) ? -3 : 3
++
++        P5Plate {
++            anchors.fill: parent
++            skew: 12
++            jitter: 1.5
++            seed: act.icon.length * 5
++            fillColor: actArea.pressed ? P5.blood : (actArea.containsMouse ? (act.danger ? P5.blood : P5.violet) : (act.on ? P5.violet : P5.ink))
++            borderWidth: 2
++            borderColor: P5.paper
++            slabColor: actArea.containsMouse || act.on ? P5.pink : "transparent"
++            slabOffset: Qt.point(3, 3)
++        }
++        DankIcon {
++            anchors.centerIn: parent
++            name: act.icon
++            size: 20
++            color: actArea.containsMouse || act.on ? (act.danger && actArea.containsMouse ? P5.paper : P5.ink) : P5.paper
++        }
++        P5Tag {
++            visible: actArea.containsMouse && act.hint.length > 0
++            anchors.horizontalCenter: parent.horizontalCenter
++            y: parent.height + 4
++            z: 10
++            text: act.hint
++            pixelSize: 10
++            fillColor: P5.paper
++            textColor: P5.ink
++            tilt: -4
++        }
++        MouseArea {
++            id: actArea
++            anchors.fill: parent
++            hoverEnabled: true
++            cursorShape: Qt.PointingHandCursor
++            onClicked: act.hit()
++        }
+     }
+ 
+     Row {
+         id: actionButtonsRow
+         anchors.right: parent.right
++        anchors.rightMargin: 6
+         anchors.verticalCenter: parent.verticalCenter
+-        anchors.rightMargin: Theme.spacingXS
+-        spacing: Theme.spacingXS
++        spacing: 6
+ 
+-        DankActionButton {
+-            buttonSize: 36
+-            iconName: "lock"
+-            iconSize: Theme.iconSize - 4
+-            iconColor: Theme.surfaceText
+-            backgroundColor: "transparent"
+-            onClicked: {
+-                root.lockRequested();
+-            }
++        Act {
++            icon: "lock"
++            hint: "LOCK"
++            onHit: root.lockRequested()
+         }
+-
+-        DankActionButton {
+-            buttonSize: 36
+-            iconName: "power_settings_new"
+-            iconSize: Theme.iconSize - 4
+-            iconColor: Theme.surfaceText
+-            backgroundColor: "transparent"
+-            onClicked: root.powerButtonClicked()
++        Act {
++            icon: "power_settings_new"
++            hint: "POWER"
++            danger: true
++            onHit: root.powerButtonClicked()
+         }
+-
+-        DankActionButton {
+-            buttonSize: 36
+-            iconName: "settings"
+-            iconSize: Theme.iconSize - 4
+-            iconColor: Theme.surfaceText
+-            backgroundColor: "transparent"
+-            onClicked: {
++        Act {
++            icon: "settings"
++            hint: "SETTINGS"
++            onHit: {
+                 root.settingsButtonClicked();
+                 PopoutService.focusOrToggleSettings();
+             }
+         }
+-
+-        DankActionButton {
+-            buttonSize: 36
+-            iconName: editMode ? "done" : "edit"
+-            iconSize: Theme.iconSize - 4
+-            iconColor: editMode ? Theme.primary : Theme.surfaceText
+-            backgroundColor: "transparent"
+-            onClicked: root.editModeToggled()
++        Act {
++            icon: root.editMode ? "done" : "edit"
++            hint: root.editMode ? "DONE" : "EDIT"
++            on: root.editMode
++            onHit: root.editModeToggled()
+         }
+     }
+ }

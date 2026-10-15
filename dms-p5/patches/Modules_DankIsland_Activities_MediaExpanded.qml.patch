@@ -1,0 +1,25 @@
+diff --git a/Modules/DankIsland/Activities/MediaExpanded.qml b/Modules/DankIsland/Activities/MediaExpanded.qml
+index 3c862e8..149aeae 100644
+--- a/Modules/DankIsland/Activities/MediaExpanded.qml
++++ b/Modules/DankIsland/Activities/MediaExpanded.qml
+@@ -1,8 +1,9 @@
+ pragma ComponentBehavior: Bound
+ 
+ import QtQuick
+-import qs.Modules.DankDash
++import qs.Modules.P5
+ 
++// P5：独立的音乐页（歪斜封面 + 爆炸星播放键），替换原来的 MediaPlayerTab
+ DashTabFace {
+     id: root
+ 
+@@ -11,8 +12,7 @@ DashTabFace {
+     activityId: "media"
+     inset: 1
+     tabComponent: Component {
+-        MediaPlayerTab {
+-            chrome: "island"
++        P5MediaPage {
+             live: root.live
+         }
+     }

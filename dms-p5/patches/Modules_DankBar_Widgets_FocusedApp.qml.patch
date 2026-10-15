@@ -1,0 +1,49 @@
+diff --git a/Modules/DankBar/Widgets/FocusedApp.qml b/Modules/DankBar/Widgets/FocusedApp.qml
+index 3f8c599..e9cb61f 100644
+--- a/Modules/DankBar/Widgets/FocusedApp.qml
++++ b/Modules/DankBar/Widgets/FocusedApp.qml
+@@ -177,6 +177,22 @@ BasePill {
+         }
+     }
+ 
++    // P5：供 `dms ipc call widget toggle focusedWindow` 使用（BarWidgetService.triggerWidgetPopout）
++    function triggerPopout() {
++        if (!activeWindow || !root.parentScreen)
++            return;
++        if (tooltipLoader.item)
++            tooltipLoader.item.hide();
++        tooltipLoader.active = false;
++
++        focusedWindowPopoutLoader.active = true;
++        if (!focusedWindowPopoutLoader.item)
++            return;
++
++        root.syncPopoutState();
++        focusedWindowPopoutLoader.item.toggle();
++    }
++
+     function syncPopoutState() {
+         const popout = focusedWindowPopoutLoader.item;
+         if (!popout || !activeWindow || !root.parentScreen)
+@@ -487,20 +503,7 @@ BasePill {
+         }
+ 
+         acceptedButtons: Qt.LeftButton
+-        onClicked: {
+-            if (!activeWindow || !root.parentScreen)
+-                return;
+-            if (tooltipLoader.item)
+-                tooltipLoader.item.hide();
+-            tooltipLoader.active = false;
+-
+-            focusedWindowPopoutLoader.active = true;
+-            if (!focusedWindowPopoutLoader.item)
+-                return;
+-
+-            root.syncPopoutState();
+-            focusedWindowPopoutLoader.item.toggle();
+-        }
++        onClicked: root.triggerPopout()
+     }
+ 
+     Loader {

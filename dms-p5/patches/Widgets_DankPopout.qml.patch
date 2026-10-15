@@ -1,0 +1,21 @@
+diff --git a/Widgets/DankPopout.qml b/Widgets/DankPopout.qml
+index 110bc1c..b2ff154 100644
+--- a/Widgets/DankPopout.qml
++++ b/Widgets/DankPopout.qml
+@@ -32,6 +32,8 @@ Item {
+     property bool contentHandlesKeys: false
+     property bool fullHeightSurface: false
+     property bool _primeContent: false
++    // P5：不画默认面板（切角板 + 模糊），由内容自己画造型（左轮菜单、通缉令墙、档案斜块等）
++    property bool p5Bare: false
+ 
+     property real storedBarThickness: Theme.barHeight - 4
+     property real storedBarSpacing: 4
+@@ -329,6 +331,7 @@ Item {
+         it.effectiveBarBottomGap = Qt.binding(() => root.effectiveBarBottomGap);
+         it.hoverDismissEnabled = Qt.binding(() => root.hoverDismissEnabled);
+         it.hoverDismissSuspended = Qt.binding(() => root.effectiveHoverDismissSuspended);
++        it.p5Bare = Qt.binding(() => root.p5Bare);
+ 
+         if (root.shouldBeVisible && !_pendingOpen)
+             root.shouldBeVisible = false;

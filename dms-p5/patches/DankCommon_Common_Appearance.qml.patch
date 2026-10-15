@@ -1,0 +1,21 @@
+diff --git a/DankCommon/Common/Appearance.qml b/DankCommon/Common/Appearance.qml
+index 3c22566..8fc0790 100644
+--- a/DankCommon/Common/Appearance.qml
++++ b/DankCommon/Common/Appearance.qml
+@@ -12,11 +12,12 @@ Singleton {
+     readonly property FontSize fontSize: FontSize {}
+     readonly property Anim anim: Anim {}
+ 
++    // P5：除 full（圆形）外全部直角
+     component Rounding: QtObject {
+-        readonly property int small: 8
+-        readonly property int normal: 12
+-        readonly property int large: 16
+-        readonly property int extraLarge: 24
++        readonly property int small: 0
++        readonly property int normal: 0
++        readonly property int large: 0
++        readonly property int extraLarge: 0
+         readonly property int full: 1000
+     }
+ 

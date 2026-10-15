@@ -1,0 +1,182 @@
+@font-face { font-family: "Anton"; src: url("fonts/Anton-Regular.ttf") format("truetype"); }
+@font-face { font-family: "Luckiest"; src: url("fonts/LuckiestGuy-Regular.ttf") format("truetype"); }
+@font-face { font-family: "BarlowC"; src: url("fonts/BarlowCondensed-ExtraBoldItalic.ttf") format("truetype"); font-weight: 800; font-style: italic; }
+@font-face { font-family: "BarlowC"; src: url("fonts/BarlowCondensed-Bold.ttf") format("truetype"); font-weight: 700; font-style: normal; }
+@font-face { font-family: "NotoB"; src: url("fonts/NotoSans-Bold.ttf") format("truetype"); }
+@font-face { font-family: "NotoK"; src: url("fonts/NotoSans-Black.ttf") format("truetype"); }
+
+/* ---------- 主题色：默认 P5R 红；T 键切换到 DMS 的粉紫 ---------- */
+:root, [data-theme="red"] {
+  --accent: #ff1d0c;        /* 焦点条幅底色 */
+  --accent-deep: #9e0c02;   /* 大字投影 / 暗部 */
+  --accent-text: #ff1d0c;   /* 白条幅上的强调字 */
+  --on-accent: #ffffff;     /* 焦点条幅上的亮字 */
+  --on-accent-ink: #000000; /* 焦点条幅上的暗字 */
+  --shard-hi: #ff4a3a;
+  --shard-mid: #e3120b;
+  --shard-lo: #8c0703;
+  --shard-dark: #3a0201;
+}
+[data-theme="lavender"] {
+  --accent: #d0bcff;
+  --accent-deep: #ffffff;
+  --accent-text: #8a63e6;
+  --on-accent: #1b0f33;     /* 粉紫底上用深色字 */
+  --on-accent-ink: #000000;
+  --shard-hi: #efe6ff;
+  --shard-mid: #c2a9ff;
+  --shard-lo: #6c52b4;
+  --shard-dark: #241a3d;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; overflow: hidden; background: #000; }
+body { user-select: none; -webkit-user-select: none; cursor: default; }
+
+#stage {
+  position: absolute; left: 0; top: 0;
+  width: 1920px; height: 1080px;
+  transform-origin: 0 0;
+  overflow: hidden;
+  background: #000;
+}
+
+/* ---------- 背景碎片 ---------- */
+#shards { position: absolute; left: 0; top: 0; z-index: 0; }
+#shards .s-hi { stop-color: var(--shard-hi); }
+#shards .s-mid { stop-color: var(--shard-mid); }
+#shards .s-lo { stop-color: var(--shard-lo); }
+#shards .s-dark { stop-color: var(--shard-dark); }
+.shard { transform-box: fill-box; transform-origin: center; animation: drift var(--dur, 9s) ease-in-out var(--delay, 0s) infinite alternate; }
+@keyframes drift {
+  from { transform: translate(0, 0) rotate(0deg); }
+  to   { transform: translate(var(--dx, 8px), var(--dy, -6px)) rotate(var(--dr, 3deg)); }
+}
+
+/* ---------- 条幅 ---------- */
+#fan { position: absolute; left: 0; top: 0; width: 0; height: 0; z-index: 10; }
+.strip { position: absolute; left: 0; top: 0; width: 0; height: 0; transform-origin: 0 0; will-change: transform; pointer-events: none; }
+.slide { position: absolute; left: 0; top: 0; will-change: transform; pointer-events: none; }
+.shape { position: absolute; left: -200px; top: -400px; overflow: visible; pointer-events: none; }
+.shape .hit { pointer-events: visiblePainted; cursor: pointer; }
+.shape .face { fill: var(--face, #fff); }
+.shape .ink { fill: #000; }
+
+.focus-wrap { position: absolute; left: 0; top: 0; pointer-events: none; }
+.focus-wrap .shape .panel { fill: var(--accent); }
+.focus-wrap .shape .flash { fill: #fff; opacity: 0; }
+
+.info { position: absolute; left: 0; top: 0; pointer-events: none; }
+.info > * { position: absolute; white-space: nowrap; line-height: 1; transform-origin: 0 50%; }
+
+/* 普通条幅上的信息 */
+.n-no { color: #fff; font-family: "Anton"; display: flex; align-items: flex-end;
+        paint-order: stroke fill; -webkit-text-stroke: 11px #000; transform: rotate(-4deg); }
+.n-no .no-l { font-size: 46px; margin-right: 1px; transform: translateY(-4px); }
+.n-no .no-l small { font-size: 26px; vertical-align: 6px; }
+.n-no .no-d { font-size: 78px; letter-spacing: -1px; }
+
+.date { display: flex; align-items: flex-end; font-family: "Anton"; color: var(--accent-text); }
+.date .dm { font-size: 80px; letter-spacing: -1px; }
+.date .ds { font-size: 52px; margin: 0 2px 6px; transform: skewX(-10deg); display: inline-block; }
+.date .wd { font-size: 34px; padding: 2px 3px 1px; margin: 0 6px 12px 10px; background: var(--accent-text); color: #fff;
+            border: 3px solid var(--accent-text); outline: 2px solid #fff; outline-offset: -6px; }
+.date .tod { font-family: "BarlowC"; font-weight: 800; font-style: italic; font-size: 29px; margin-bottom: 12px; letter-spacing: -.5px; }
+
+.loc { font-family: "NotoB"; font-size: 31px; color: #111; letter-spacing: .5px; transform: rotate(1deg); }
+.lv { font-family: "NotoK"; color: #111; transform: rotate(-1deg); display: flex; align-items: flex-end; }
+.lv .lv-l { font-size: 40px; margin-right: 2px; transform: translateY(-3px); }
+.lv .lv-d { font-size: 60px; letter-spacing: -2px; }
+.nodata { font-family: "Anton"; font-size: 84px; color: #b9b9b9; letter-spacing: 10px; }
+
+/* COMPLETED 勒索信印章 */
+.stamp { display: flex; align-items: center; transform: rotate(4deg); }
+.stamp .rl { display: inline-block; color: var(--accent-text); paint-order: stroke fill; -webkit-text-stroke: 8px #fff; }
+.stamp .rl.box { background: var(--accent-text); color: #fff; -webkit-text-stroke: 0; padding: 0 4px; outline: 4px solid #fff; }
+.stamp .rl.dot { width: 80px; height: 80px; border-radius: 50%; background: var(--accent-text); color: #fff; -webkit-text-stroke: 0;
+                 display: inline-flex; align-items: center; justify-content: center; font-size: 64px; border: 5px solid #fff; }
+.stamp .star { color: var(--accent-text); font-size: 40px; margin-left: 6px; -webkit-text-stroke: 0; align-self: flex-end; }
+.spark { position: absolute; pointer-events: none; }
+.spark i { position: absolute; left: 0; top: 0; background: var(--accent-text); transform-origin: 0 50%; height: 3px; }
+
+/* 焦点条幅上的信息 */
+.f-no { color: var(--on-accent-ink); font-family: "Anton"; display: flex; align-items: flex-end; transform: rotate(-5deg); }
+.f-no .no-l { font-size: 64px; transform: translateY(-6px); }
+.f-no .no-l small { font-size: 40px; vertical-align: 10px; }
+.f-no .no-d { font-size: 118px; }
+
+.f-date { display: flex; align-items: flex-end; font-family: "NotoK"; color: var(--on-accent); transform: rotate(4deg) scale(var(--k, 1)) scaleX(.9);
+          text-shadow: 7px 7px 0 var(--accent-deep); }
+.f-date .dm { font-size: 216px; letter-spacing: -10px; line-height: .78; }
+.f-date .dm.big { font-size: 222px; }
+.f-date .ds { font-size: 130px; line-height: .8; margin: 0 8px 4px 0; display: inline-block; transform: skewX(-12deg); }
+.f-date .wd { font-family: "Anton"; font-size: 50px; line-height: 1; padding: 2px 4px 0; margin: 0 6px 8px 10px; color: var(--accent); background: var(--on-accent);
+              text-shadow: none; border: 4px solid var(--on-accent); outline: 3px solid var(--accent); outline-offset: -8px; }
+.f-date .tod { font-family: "BarlowC"; font-weight: 800; font-style: italic; font-size: 36px; line-height: 1; margin-bottom: 6px; text-shadow: 3px 3px 0 var(--accent-deep); }
+
+.f-diff { transform: rotate(-8deg); }
+.f-diff .tag { display: inline-block; background: #000; padding: 6px 22px 4px 18px; clip-path: polygon(3% 0, 100% 6%, 97% 100%, 0 92%); }
+.f-diff .tag span { font-family: "Luckiest"; color: var(--accent); font-size: 46px; display: inline-block; }
+
+.f-play { transform: rotate(-5deg); color: var(--on-accent-ink); display: flex; align-items: flex-end; }
+.f-play .rl { display: inline-block; }
+.f-time { font-family: "NotoK"; font-size: 62px; color: var(--on-accent-ink); letter-spacing: 4px; transform: rotate(-4deg); }
+.f-time .colon { font-size: 52px; margin: 0 8px; vertical-align: 6px; }
+.f-loc { font-family: "NotoB"; font-size: 33px; color: var(--on-accent); letter-spacing: 1px; transform: rotate(-2deg); }
+.f-lv { font-family: "NotoK"; color: var(--on-accent); transform: rotate(-3deg); display: flex; align-items: flex-end; }
+.f-lv .lv-l { font-size: 56px; transform: translateY(-6px); }
+.f-lv .lv-d { font-size: 86px; letter-spacing: -3px; }
+.f-name { font-family: "NotoK"; font-size: 34px; color: var(--on-accent-ink); transform: rotate(-4deg); }
+.f-nodata { font-family: "Anton"; font-size: 170px; color: var(--on-accent); letter-spacing: 14px; transform: rotate(3deg);
+            text-shadow: 7px 7px 0 var(--accent-deep); }
+
+/* 头部提示条 */
+.prompt { font-family: "NotoB"; font-size: 28px; color: #fff; letter-spacing: 1.5px; transform: rotate(-0.6deg); }
+
+/* 确认：冲击 + 闪白 */
+.strip.confirm .punch { animation: punch .48s cubic-bezier(.2,.9,.25,1); }
+.strip.confirm .flash { animation: flash .48s ease-out; }
+@keyframes punch {
+  0% { transform: translate(0, 0); }
+  18% { transform: translate(-46px, -6px) rotate(-1.2deg); }
+  42% { transform: translate(14px, 2px) rotate(.4deg); }
+  70% { transform: translate(-6px, 0); }
+  100% { transform: translate(0, 0); }
+}
+@keyframes flash { 0% { opacity: .95; } 100% { opacity: 0; } }
+.punch { position: absolute; left: 0; top: 0; }
+
+/* ---------- 标题 ---------- */
+#title { position: absolute; left: 96px; top: 6px; width: 560px; height: 360px; z-index: 60; transform: rotate(-7deg);
+         transform-origin: 30% 50%; pointer-events: none; }
+#title .title-bg { position: absolute; left: 0; top: 0; overflow: visible; }
+#title .t-red { fill: var(--accent); }
+#title .t-black { fill: #000; }
+.t-letters { position: absolute; left: 6px; top: 34px; display: flex; align-items: flex-end; color: #fff;
+             paint-order: stroke fill; -webkit-text-stroke: 12px #000; }
+.t-letters span { display: inline-block; line-height: .9; }
+.t-S { font-family: "NotoK"; font-size: 222px; transform: rotate(-4deg) translateY(10px); margin-right: -10px; }
+.t-a { font-family: "NotoK"; font-size: 150px; transform: rotate(3deg) translateY(-2px); margin-right: -6px; }
+.t-V { font-family: "Anton"; font-size: 178px; color: var(--accent); transform: rotate(-2deg) scaleX(1.25) translateY(4px); margin: 0 16px 0 10px; }
+.t-E { font-family: "Anton"; font-size: 186px; transform: rotate(2deg) scaleX(1.3) translateY(-6px); margin-left: 6px; }
+
+/* ---------- 滚动条 ---------- */
+#scrollbar { position: absolute; left: 156px; top: 536px; width: 28px; height: 334px; z-index: 60;
+             border: 6px solid #fff; border-radius: 14px; transform: rotate(-30deg); transform-origin: 50% 0; }
+#thumb { position: absolute; left: 3px; top: 4px; width: 10px; height: 24px; background: #fff; border-radius: 3px; }
+
+/* ---------- 按键提示 ---------- */
+#hints { position: absolute; left: 42px; top: 990px; z-index: 60; display: flex; gap: 40px; }
+.hint { display: flex; align-items: center; cursor: pointer; filter: drop-shadow(0 0 0 #fff); }
+.hint b { font-family: "Anton"; font-weight: 400; font-size: 46px; color: #fff; letter-spacing: -1px;
+          paint-order: stroke fill; -webkit-text-stroke: 9px #000; filter: drop-shadow(3px 0 0 #fff) drop-shadow(-3px 0 0 #fff) drop-shadow(0 3px 0 #fff) drop-shadow(0 -3px 0 #fff); transform: rotate(-3deg); display: inline-block; }
+.hint i { width: 44px; height: 44px; border-radius: 50%; background: #fff; border: 4px solid #000; outline: 3px solid #fff;
+          position: relative; margin-right: 2px; flex: none; }
+.btn-o::after { content: ""; position: absolute; inset: 6px; border-radius: 50%; border: 5px solid #ff4f7b; }
+.btn-x::before, .btn-x::after { content: ""; position: absolute; left: 50%; top: 50%; width: 28px; height: 6px; background: #3fa8ff; border-radius: 2px; }
+.btn-x::before { transform: translate(-50%, -50%) rotate(45deg); }
+.btn-x::after { transform: translate(-50%, -50%) rotate(-45deg); }
+.hint:hover b { color: var(--accent); }
+
+#help { position: absolute; right: 26px; bottom: 16px; z-index: 60; font: 600 15px "BarlowC", sans-serif; letter-spacing: 2px;
+        color: rgba(255,255,255,.55); background: rgba(0,0,0,.55); padding: 4px 10px; }

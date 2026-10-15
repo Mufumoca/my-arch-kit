@@ -1,0 +1,54 @@
+diff --git a/DMSShellIPC.qml b/DMSShellIPC.qml
+index 29b75da..0fd1111 100644
+--- a/DMSShellIPC.qml
++++ b/DMSShellIPC.qml
+@@ -8,6 +8,7 @@ import Quickshell.Services.UPower
+ import qs.Common
+ import qs.Services
+ import qs.Modules.Settings.DisplayConfig
++import qs.Modules.P5
+ 
+ Item {
+     id: root
+@@ -1520,19 +1521,20 @@ Item {
+     }
+ 
+     // ! spotlight and launcher should be synonymous for backwards compat
++    // P5：spotlight（Mod+Z）的开/关/切换改走存档界面式的应用列表；按模式打开（openWith/toggleWith）仍是原版启动器
+     IpcHandler {
+         function open(): string {
+-            PopoutService.openDankLauncherV2();
++            P5Apps.open("");
+             return "SPOTLIGHT_OPEN_SUCCESS";
+         }
+ 
+         function close(): string {
+-            PopoutService.closeDankLauncherV2();
++            P5Apps.close();
+             return "SPOTLIGHT_CLOSE_SUCCESS";
+         }
+ 
+         function toggle(): string {
+-            PopoutService.toggleDankLauncherV2();
++            P5Apps.toggle();
+             return "SPOTLIGHT_TOGGLE_SUCCESS";
+         }
+ 
+@@ -1551,12 +1553,15 @@ Item {
+         }
+ 
+         function openQuery(query: string): string {
+-            PopoutService.openDankLauncherV2WithQuery(query);
++            P5Apps.open(query);
+             return "SPOTLIGHT_OPEN_QUERY_SUCCESS";
+         }
+ 
+         function toggleQuery(query: string): string {
+-            PopoutService.toggleDankLauncherV2WithQuery(query);
++            if (P5Apps.isOpen)
++                P5Apps.close();
++            else
++                P5Apps.open(query);
+             return "SPOTLIGHT_TOGGLE_QUERY_SUCCESS";
+         }
+ 

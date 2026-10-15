@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CSS Motion Typography Interstitial — local copy</title>
+<style>
+@keyframes expand { 
+to { transform: rotate(-15deg) scaleX(1);  }
+}
+@keyframes center { 
+  0% { text-indent: inherit;  }
+  10% { text-indent:  30%; }
+  90% { text-indent:  30%;  opacity: 1; }
+  100% { opacity: 0;  }
+}
+@keyframes squish { 
+to { max-height: 0px; }
+}
+
+html { height: 100%; }
+body { background: #111; margin: 0; min-height: 100%; overflow: hidden; }
+header { 
+  transform: rotate(-15deg) scaleX(.1); 
+  width: 180%; margin-left: -20%; 
+  transform-origin: center right;
+  background: #ff0;
+  max-height: 300px; 
+  animation: expand .3s 1s forwards, squish .3s 3s forwards;
+}
+h1 { 
+  font-family: Impact, sans-serif; 
+  font-size: 30vh; 
+  line-height: .78; 
+  text-intend: 100%;
+  letter-spacing: -7px; 
+  margin-top: 0;
+  color: #000;
+  animation: center 1.6s 1s forwards;
+}</style>
+</head>
+<body>
+<header>
+<h1>NEXT</h1>
+</header>
+
+</body>
+</html>
