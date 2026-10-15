@@ -1,0 +1,47 @@
+diff --git a/Modals/DankLauncherV2/ResultItem.qml b/Modals/DankLauncherV2/ResultItem.qml
+index 8f3e89a..0d8d480 100644
+--- a/Modals/DankLauncherV2/ResultItem.qml
++++ b/Modals/DankLauncherV2/ResultItem.qml
+@@ -3,6 +3,7 @@ pragma ComponentBehavior: Bound
+ import QtQuick
+ import qs.Common
+ import qs.Widgets
++import qs.DankCommon.Widgets as P5w
+ import "../../Common/htmlElide.js" as HtmlElide
+ 
+ Rectangle {
+@@ -37,9 +38,15 @@ Rectangle {
+ 
+     width: parent?.width ?? 200
+     height: 52
+-    color: isSelected ? Theme.primaryPressed : isHovered ? Theme.primaryHoverLight : Theme.withAlpha(Theme.primaryHoverLight, 0)
++    // P5：选中 / 悬停态由 P5Select 画
++    color: "transparent"
+     radius: Theme.cornerRadius
+ 
++    P5w.P5Select {
++        selected: root.isSelected
++        hovered: root.isHovered
++    }
++
+     DankRipple {
+         id: rippleLayer
+         rippleColor: Theme.surfaceText
+@@ -106,7 +113,7 @@ Rectangle {
+             font.pixelSize: Theme.fontSizeMedium
+             font.weight: Font.Medium
+             font.family: Theme.fontFamily
+-            color: Theme.surfaceText
++            color: root.isSelected ? "#0E0A12" : Theme.surfaceText
+             wrapMode: Text.WordWrap
+             maximumLineCount: 1
+             elide: Text.ElideRight
+@@ -139,7 +146,7 @@ Rectangle {
+             textFormat: root.item?._hRich ? Text.RichText : Text.PlainText
+             font.pixelSize: Theme.fontSizeSmall
+             font.family: Theme.fontFamily
+-            color: Theme.surfaceVariantText
++            color: root.isSelected ? Qt.rgba(0.055, 0.04, 0.07, 0.75) : Theme.surfaceVariantText
+             wrapMode: Text.WordWrap
+             maximumLineCount: 1
+             elide: Text.ElideRight

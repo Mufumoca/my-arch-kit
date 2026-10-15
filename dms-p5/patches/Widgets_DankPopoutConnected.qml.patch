@@ -1,0 +1,30 @@
+diff --git a/Widgets/DankPopoutConnected.qml b/Widgets/DankPopoutConnected.qml
+index 6a3fc39..b26d08a 100644
+--- a/Widgets/DankPopoutConnected.qml
++++ b/Widgets/DankPopoutConnected.qml
+@@ -33,6 +33,7 @@ Item {
+     property list<real> animationExitCurve: Theme.variantPopoutExitCurve
+     property bool suspendShadowWhileResizing: false
+     property bool shouldBeVisible: false
++    property bool p5Bare: false
+     property var customKeyboardFocus: null
+     property bool backgroundInteractive: true
+     property bool contentHandlesKeys: false
+@@ -948,7 +949,7 @@ Item {
+         WindowBlur {
+             id: popoutBlur
+             targetWindow: contentWindow
+-            blurEnabled: root.effectiveSurfaceBlurEnabled && !root.frameOwnsConnectedChrome
++            blurEnabled: root.effectiveSurfaceBlurEnabled && !root.frameOwnsConnectedChrome && !root.p5Bare
+ 
+             readonly property real s: Math.min(1, contentContainer.scaleValue)
+             readonly property bool trackBlurFromBarEdge: root.usesConnectedSurfaceChrome
+@@ -1218,7 +1219,7 @@ Item {
+ 
+                     ElevationShadow {
+                         id: shadowSource
+-                        visible: !root.usesConnectedSurfaceChrome
++                        visible: !root.usesConnectedSurfaceChrome && !root.p5Bare
+                         width: rollOutAdjuster.baseWidth
+                         height: rollOutAdjuster.baseHeight
+                         opacity: contentWrapper.publishedOpacity

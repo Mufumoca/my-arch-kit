@@ -1,0 +1,59 @@
+diff --git a/Modules/DankIsland/Activities/HomeCompact.qml b/Modules/DankIsland/Activities/HomeCompact.qml
+index 10e586f..38d35e4 100644
+--- a/Modules/DankIsland/Activities/HomeCompact.qml
++++ b/Modules/DankIsland/Activities/HomeCompact.qml
+@@ -6,6 +6,7 @@ import qs.Common
+ import qs.Modules.DankBar.Widgets
+ import qs.Services
+ import qs.Widgets
++import qs.DankCommon.Widgets as P5w
+ 
+ Item {
+     id: root
+@@ -245,15 +246,12 @@ Item {
+             visible: item.isClock
+             spacing: Theme.spacingS
+ 
+-            NumericText {
++            // P5：时间用勒索信字拼出来
++            P5w.P5Ransom {
+                 anchors.verticalCenter: parent.verticalCenter
+                 visible: clockRow.displayMode !== "date"
+-                isMonospace: false
+                 text: root.timeText
+-                reserveText: root.timeText.replace(/\d/g, "0")
+-                width: Math.ceil(Math.max(implicitWidth, reservedWidth))
+-                color: Theme.surfaceText
+-                font.pixelSize: root.textSize
++                pixelSize: root.textSize + 4
+             }
+ 
+             Rectangle {
+@@ -281,18 +279,22 @@ Item {
+             visible: item.isNotifications
+             spacing: Theme.spacingXXS
+ 
++            // P5：常驻铃铛；有未读时铃铛变亮并挂上淡紫数字牌，勿扰时换成静音铃
+             DankIcon {
+                 anchors.verticalCenter: parent.verticalCenter
+-                name: "notifications"
++                name: SessionData.doNotDisturb ? "notifications_off" : (root.controller.unreadNotificationCount > 0 ? "notifications_active" : "notifications")
+                 size: root.statusIconSize
+-                color: Theme.secondary
++                color: root.controller.unreadNotificationCount > 0 ? Theme.primary : Theme.surfaceTextSecondary
+             }
+ 
+-            StyledText {
++            P5w.P5Tag {
+                 anchors.verticalCenter: parent.verticalCenter
++                visible: root.controller.unreadNotificationCount > 0
+                 text: root.controller.unreadNotificationCount
+-                color: Theme.surfaceTextSecondary
+-                font.pixelSize: root.textSize
++                pixelSize: root.textSize
++                fillColor: Theme.primary
++                textColor: "#0E0A12"
++                tilt: -6
+             }
+         }
+ 

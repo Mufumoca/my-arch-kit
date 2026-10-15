@@ -1,0 +1,37 @@
+diff --git a/Widgets/DankPopoutStandalone.qml b/Widgets/DankPopoutStandalone.qml
+index ce1ba47..f478a6c 100644
+--- a/Widgets/DankPopoutStandalone.qml
++++ b/Widgets/DankPopoutStandalone.qml
+@@ -34,6 +34,7 @@ Item {
+     property list<real> animationExitCurve: Theme.variantPopoutExitCurve
+     property bool suspendShadowWhileResizing: false
+     property bool shouldBeVisible: false
++    property bool p5Bare: false
+     property bool isClosing: false
+     property bool animationsEnabled: true
+     property bool hoverDismissEnabled: false
+@@ -670,6 +671,7 @@ Item {
+         WindowBlur {
+             id: popoutBlur
+             targetWindow: contentWindow
++            blurEnabled: Theme.connectedSurfaceBlurEnabled && !root.p5Bare
+             readonly property real s: Math.min(1, contentContainer.scaleValue)
+             readonly property real op: Math.max(0, Math.min(1, (morph.value - 0.08) * 1.6))
+             readonly property real visibleScale: s * op
+@@ -862,6 +864,7 @@ Item {
+ 
+                     ElevationShadow {
+                         id: shadowSource
++                        visible: !root.p5Bare
+                         width: rollOutAdjuster.baseWidth
+                         height: rollOutAdjuster.baseHeight
+                         opacity: contentWrapper.publishedOpacity
+@@ -954,7 +957,7 @@ Item {
+                         y: root.fluidStandaloneActive ? 0 : contentWrapper.y
+                         opacity: contentWrapper.publishedOpacity
+                         scale: root.fluidStandaloneActive ? 1 : contentWrapper.scale
+-                        visible: contentWrapper.visible
++                        visible: contentWrapper.visible && !root.p5Bare
+                         radius: Theme.cornerRadius
+                         color: "transparent"
+                         border.color: BlurService.borderColor

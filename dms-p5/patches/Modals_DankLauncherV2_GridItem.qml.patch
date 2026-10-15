@@ -1,0 +1,45 @@
+diff --git a/Modals/DankLauncherV2/GridItem.qml b/Modals/DankLauncherV2/GridItem.qml
+index 77f3716..86561ad 100644
+--- a/Modals/DankLauncherV2/GridItem.qml
++++ b/Modals/DankLauncherV2/GridItem.qml
+@@ -3,6 +3,7 @@ pragma ComponentBehavior: Bound
+ import QtQuick
+ import qs.Common
+ import qs.Widgets
++import qs.DankCommon.Widgets as P5w
+ 
+ Rectangle {
+     id: root
+@@ -36,7 +37,13 @@ Rectangle {
+     readonly property int computedIconSize: Math.min(48, Math.max(32, width * 0.45))
+ 
+     radius: Theme.cornerRadius
+-    color: isSelected ? Theme.primaryPressed : isHovered ? Theme.primaryHoverLight : Theme.withAlpha(Theme.primaryHoverLight, 0)
++    // P5：选中 / 悬停态由 P5Select 画
++    color: "transparent"
++
++    P5w.P5Select {
++        selected: root.isSelected
++        hovered: root.isHovered
++    }
+ 
+     DankRipple {
+         id: rippleLayer
+@@ -67,7 +74,7 @@ Rectangle {
+             iconSize: root.computedIconSize
+             animate: root.item?.data?.animated === true
+             fallbackText: (root.item?.name?.length > 0) ? root.item.name.charAt(0).toUpperCase() : "?"
+-            iconColor: root.isSelected ? Theme.primary : Theme.surfaceText
++            iconColor: root.isSelected ? "#0E0A12" : Theme.surfaceText
+             materialIconSizeAdjustment: root.computedIconSize * 0.3
+         }
+ 
+@@ -78,7 +85,7 @@ Rectangle {
+             font.pixelSize: Theme.fontSizeSmall
+             font.weight: Font.Medium
+             font.family: Theme.fontFamily
+-            color: root.isSelected ? Theme.primary : Theme.surfaceText
++            color: root.isSelected ? "#0E0A12" : Theme.surfaceText
+             elide: Text.ElideRight
+             horizontalAlignment: Text.AlignHCenter
+             maximumLineCount: 2

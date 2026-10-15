@@ -1,0 +1,68 @@
+diff --git a/Modules/DankBar/Widgets/CpuMonitor.qml b/Modules/DankBar/Widgets/CpuMonitor.qml
+index e85bcbd..c8eef58 100644
+--- a/Modules/DankBar/Widgets/CpuMonitor.qml
++++ b/Modules/DankBar/Widgets/CpuMonitor.qml
+@@ -1,5 +1,6 @@
+ import QtQuick
+ import qs.Common
++import qs.Modules.P5
+ import qs.Modules.Plugins
+ import qs.Services
+ import qs.Widgets
+@@ -66,46 +67,19 @@ BasePill {
+                 }
+             }
+ 
+-            Row {
++            // P5：图标 + Anton 数字 + 歪斜的历史小柱
++            P5StatGauge {
+                 id: cpuContent
+                 visible: !root.isVerticalOrientation
+                 anchors.centerIn: parent
+-                spacing: Theme.spacingXS
+-
+-                DankIcon {
+-                    id: cpuIcon
+-                    name: "memory"
+-                    size: Theme.barIconSize(root.barThickness, undefined, root.barConfig?.maximizeWidgetIcons, root.barConfig?.iconScale)
+-                    color: {
+-                        if (DgopService.cpuUsage > 80) {
+-                            return Theme.tempDanger;
+-                        }
+-
+-                        if (DgopService.cpuUsage > 60) {
+-                            return Theme.tempWarning;
+-                        }
+-
+-                        return Theme.widgetIconColor;
+-                    }
+-                    anchors.verticalCenter: parent.verticalCenter
+-                }
+-
+-                NumericText {
+-                    isMonospace: false
+-                    text: {
+-                        const v = DgopService.cpuUsage;
+-                        if (v === undefined || v === null || v === 0) {
+-                            return "--%";
+-                        }
+-                        return v.toFixed(0) + "%";
+-                    }
+-                    reserveText: root.minimumWidth ? "100%" : ""
+-                    width: Math.ceil(Math.max(implicitWidth, reservedWidth))
+-                    horizontalAlignment: Text.AlignHCenter
+-                    font.pixelSize: Theme.barTextSize(root.barThickness, root.barConfig?.fontScale, root.barConfig?.maximizeWidgetText)
+-                    color: Theme.widgetTextColor
+-                    anchors.verticalCenter: parent.verticalCenter
+-                }
++                iconSize: Theme.barIconSize(root.barThickness, undefined, root.barConfig?.maximizeWidgetIcons, root.barConfig?.iconScale)
++                fontSize: Theme.barTextSize(root.barThickness, root.barConfig?.fontScale, root.barConfig?.maximizeWidgetText) * 1.15
++                icon: "memory"
++                value: DgopService.cpuUsage || 0
++                history: DgopService.cpuHistory
++                reserveText: root.minimumWidth ? "100%" : ""
++                warn: 60
++                danger: 85
+             }
+         }
+     }

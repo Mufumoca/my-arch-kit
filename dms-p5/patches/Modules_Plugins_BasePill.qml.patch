@@ -1,0 +1,96 @@
+diff --git a/Modules/Plugins/BasePill.qml b/Modules/Plugins/BasePill.qml
+index 6c215ef..8259bdf 100644
+--- a/Modules/Plugins/BasePill.qml
++++ b/Modules/Plugins/BasePill.qml
+@@ -2,6 +2,8 @@ import QtQuick
+ import qs.Common
+ import qs.Services
+ import qs.Widgets
++import qs.DankCommon.Common as P5c
++import qs.DankCommon.Widgets as P5w
+ 
+ Item {
+     id: root
+@@ -97,31 +99,67 @@ Item {
+             }
+         }
+ 
+-        Rectangle {
++        // P5：每个组件是一张歪斜的梅紫卡——粗白框 + 黑色内线、不规则四角、背后一块转了角度的淡紫板。
++        // 悬停：摆正并放大，紫板外推，背后再冒出一块粉板；按下：闪红。
++        Item {
+             id: background
+             anchors.fill: parent
+-            radius: (barConfig?.noBackground ?? false) ? 0 : Theme.cornerRadius
+-            color: {
+-                if (barConfig?.noBackground ?? false) {
+-                    return "transparent";
++            readonly property bool hovered: root.enableBackgroundHover && (mouseArea.containsMouse || (root.isHovered || false))
++            readonly property real transparency: {
++                const raw = (root.barConfig && root.barConfig.widgetTransparency !== undefined) ? root.barConfig.widgetTransparency : 1.0;
++                return hovered ? Math.max(0.6, raw) : raw;
++            }
++            readonly property int seed: P5c.P5.nextSeed()
++            readonly property real tilt: P5c.P5.rand(seed, 11) * 1.6
++
++            rotation: hovered ? -tilt * 0.5 : tilt
++            scale: mouseArea.pressed ? 0.96 : (hovered ? 1.07 : 1)
++
++            Behavior on rotation {
++                enabled: P5c.P5.motionEnabled
++                NumberAnimation {
++                    duration: 260
++                    easing.type: Easing.BezierSpline
++                    easing.bezierCurve: P5c.P5.punchCurve
+                 }
+-
+-                const rawTransparency = (root.barConfig && root.barConfig.widgetTransparency !== undefined) ? root.barConfig.widgetTransparency : 1.0;
+-                const isHovered = root.enableBackgroundHover && (mouseArea.containsMouse || (root.isHovered || false));
+-                const transparency = isHovered ? Math.max(0.3, rawTransparency) : rawTransparency;
+-                const baseColor = isHovered ? BlurService.hoverColor(Theme.widgetBaseHoverColor) : Theme.widgetBaseBackgroundColor;
+-
+-                if (Theme.widgetBackgroundHasAlpha) {
+-                    return Theme.blendAlpha(baseColor, transparency);
++            }
++            Behavior on scale {
++                enabled: P5c.P5.motionEnabled
++                NumberAnimation {
++                    duration: 220
++                    easing.type: Easing.BezierSpline
++                    easing.bezierCurve: P5c.P5.punchCurve
+                 }
+-                return Theme.withAlpha(baseColor, transparency);
++            }
++
++            P5w.P5Plate {
++                anchors.fill: parent
++                visible: !(root.barConfig?.noBackground ?? false)
++                seed: background.seed
++                jitter: 2
++                skew: root.isVerticalOrientation ? 0 : P5c.P5.slant(height) * 0.8
++                cutTopLeft: root.isVerticalOrientation ? 6 : 0
++                cutBottomRight: root.isVerticalOrientation ? 6 : 5
++                fillColor: P5c.P5.alpha(mouseArea.pressed ? P5c.P5.blood : (background.hovered ? P5c.P5.plumRaised : P5c.P5.plum), Math.max(background.transparency, 0.85))
++                borderWidth: 3
++                borderColor: P5c.P5.paper
++                rimColor: P5c.P5.ink
++                rimInset: 3
++                rimWidth: 1.5
++                slabColor: P5c.P5.violet
++                slabOffset: background.hovered ? Qt.point(6, 5) : Qt.point(4, 4)
++                slabRotation: P5c.P5.rand(background.seed, 12) * 4
++                slab2Color: background.hovered ? P5c.P5.pink : "transparent"
++                slab2Offset: Qt.point(-5, 6)
++                slab2Rotation: -P5c.P5.rand(background.seed, 12) * 5
+             }
+         }
+ 
+         DankRipple {
+             id: rippleLayer
+             rippleColor: Theme.surfaceText
+-            cornerRadius: background.radius
++            cornerRadius: 0
++            enableRipple: false
+         }
+ 
+         Loader {

@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Persona 5 Style Menu — local copy</title>
+<style>
+html,
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  font-family: montserat, sans-serif;
+  background-color: #0e0e0e;
+  overflow: hidden;
+  color: #0e0e0e;
+}
+
+::selection {
+  background: rgba(255, 255, 255, 0);
+}
+
+h1 {
+  margin: 0;
+  font-size: 4em;
+  font-weight: 800;
+  padding: 0;
+  line-height: 1;
+}
+
+h2 {
+  font-weight: 800;
+  font-size: 2em;
+  margin: 0;
+  padding: 0;
+}
+
+h3 {
+  font-weight: 800;
+  font-size: 1.2em;
+  margin: 0;
+  padding: 0;
+}
+
+h4,a {
+  font-weight: 800;
+  font-size: 0.75em;
+  margin: 0;
+  padding: 0;
+}
+
+h5 {
+  font-weight: 800;
+  font-size: 0.75em;
+  margin: 0;
+  padding: 0;
+}
+
+p {
+  font-weight: 400;
+  font-size: 1em;
+  margin: 0;
+  padding: 0;
+  line-height: 1.2;
+}
+
+h6 {
+  font-weight: 400;
+  font-size: 0.6em;
+  margin: 0;
+  padding: 0;
+  line-height: 1.6;
+}
+
+ul,
+li {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+span {
+  margin: 0;
+  padding: 0;
+}
+
+a {
+  color: #3b4255;
+  text-decoration: none;
+}
+
+::-webkit-scrollbar {
+  display: none;
+}
+
+.paperEffect {
+  z-index: 30;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  mix-blend-mode: multiply;
+  opacity: 0.2;
+  transform: rotate(0deg);
+  visibility: visible;
+}
+
+.paper70 {
+  opacity: 0.7 !important;
+  visibility: visible;
+}
+
+
+/*-----------*/
+
+
+.menuContainer{
+  position: absolute;
+  top: 3em;
+  right: 4em;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  transition: all ease .39s;
+}
+
+.menuActive {
+  top: 50vh;
+}
+
+.menuIcon{
+  position: absolute;
+  transform: skew(-15deg);
+  background-color: black;
+  cursor: pointer;
+  z-index: 50;
+}
+
+.menuActive .menuIcon{
+  transform: scale(1.2) skew(-15deg);
+}
+
+.menuLine{
+  height: 2.4em;
+  width: .6em;
+  background-color: #e7db3b;
+  position: absolute;
+  transition: all ease .39s;
+  transform-origin: 50% 50%;
+}
+
+.lineLeft{
+  left: 0em;
+}
+
+.lineCenter{
+  left: 1.2em;
+}
+
+.lineRight{
+  left: 2.4em;
+}
+
+.menuActive .lineLeft{
+  left: 1.2em;
+  transform: rotate(135deg);
+}
+.menuActive .lineCenter{
+  transform: rotate(360deg);
+  opacity: 0;
+}
+.menuActive .lineRight{
+  left: 1.2em;
+  transform: rotate(-135deg);
+}
+
+/*--- Main Menu ---*/
+
+.mainMenu{
+  position: absolute;
+  transform-origin: center right;
+  perspective: 150px;
+  transition: all ease .39s;
+  top: 10em;
+  right: 0em;
+  width: 15em;
+  overflow: hidden;
+  transform: rotate(-90deg) scale(0);
+  margin: .5em -2.5em 0em 0em;
+}
+
+.menuActive .mainMenu{
+  overflow: visible;
+  top: -1.5em;
+  right: -1.5em;
+  transform: rotate(0deg)  scale(1.3);
+}
+
+.menuItem{
+  position: bsolute;
+  width: auto;
+  transform-origin: top right;
+  cursor: pointer;
+  margin-bottom:-2em;
+  transition: all ease .39s;
+}
+
+.menuActive .menuItem{
+  margin-bottom: -.3em;
+}
+
+.menuItemName{
+  color: white;
+  background-color: black;
+  padding: .5em 6em .5em .5em;
+  margin-right: 0em;
+  box-sizing: border-box;
+  box-shadow: -.2em .2em 0em 0em rgba(231,219,59,1);
+  transform: skew(10deg);
+  transition: all ease .39s;
+  margin-bottom: 0em;
+}
+
+.menuItemName:hover{
+  box-shadow: -1.2em .4em 0em .1em rgba(231,219,59,1);
+}
+
+.menuItem:hover{
+  margin-right: -1em;
+}
+
+.menuItem:nth-child(1){
+  transform: rotate3d(0, 1, 1, 25deg);
+}
+
+.menuItem:nth-child(2){
+  transform: rotate3d(0, 1, 1, 20deg);
+}
+
+.menuItem:nth-child(3){
+  transform: rotate3d(0, 1, 1, 14deg) scale(1.2);
+}
+
+.menuItem:nth-child(4){
+  transform: rotate3d( 0, 1, 1, 6deg) scale(1.1)
+}
+
+.menuItem:nth-child(5){
+  transform: rotate3d(0, -1, 1, -4deg) scale(1.2);
+}
+
+.menuItem:nth-child(6){
+  transform: rotate3d(0, -1, 1, -13deg);
+}
+
+.menuItem:nth-child(7){
+  transform: rotate3d(0, -1, 1, -20deg);
+}
+</style>
+</head>
+<body>
+<!-- NOTE: original icon font (i.icomoon.io temp link) is dead/404, removed -->
+
+<div class= "menuContainer menuActive">
+
+<div class="menuButton">
+  <div class="menuIcon">
+    <div class="menuLine lineLeft">           </div>
+    <div class="menuLine lineCenter">         </div>
+   <div class="menuLine lineRight">          </div>
+  </div>
+</div>
+
+<div class="mainMenu">
+  
+  <div class="menuItem">
+    <a href="" class="menuItemName">Home <span class="icon-menu"></span></a>
+  </div>
+  
+  <div class="menuItem">
+    <a class="menuItemName">Case History <span class="icon-folder"></span> </a>
+  </div>
+  
+  <div class="menuItem">
+    <a class="menuItemName">Creators <span class="icon-influencer"></span></a>
+  </div>
+  
+  <div class="menuItem">
+    <a class="menuItemName">Services <span class="icon-sketch"></span></a>
+  </div>
+  
+  <div class="menuItem">
+    <a class="menuItemName">Contacts <span class="icon-email-1"></span> </a>
+  </div>
+  
+  <div class="menuItem">
+    <a class="menuItemName">Get a quote <span class="icon-sponsor"></span></a>
+  </div>
+  
+  <div class="menuItem">
+    <a class="menuItemName">I'm An Influencer <span class="icon-follow"></span> </a>
+  </div>
+  
+</div>
+  
+</div>
+</body>
+</html>

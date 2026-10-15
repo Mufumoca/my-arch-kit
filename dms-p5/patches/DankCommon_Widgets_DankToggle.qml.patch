@@ -1,0 +1,83 @@
+diff --git a/DankCommon/Widgets/DankToggle.qml b/DankCommon/Widgets/DankToggle.qml
+index 09b904b..37f9871 100644
+--- a/DankCommon/Widgets/DankToggle.qml
++++ b/DankCommon/Widgets/DankToggle.qml
+@@ -108,14 +108,27 @@ Item {
+         anchors.right: parent.right
+         anchors.rightMargin: showText ? Style.spacingM : 0
+         anchors.verticalCenter: parent.verticalCenter
+-        radius: Style.cornerRadius
+-
+-        // Distinguish disabled checked vs unchecked so unchecked disabled switches don't look enabled
+-        color: !toggle.enabled ? (toggle.checked ? Qt.alpha(Style.surfaceText, 0.12) : Style.withAlpha(Qt.alpha(Style.surfaceText, 0.12), 0)) : (toggle.checked ? Style.primary : Style.surfaceVariantAlpha)
++        radius: 0
++        // P5：颜色画在斜切板上。关 = 墨底描边，开 = 怪盗紫 + 白色错位板
++        color: "transparent"
+         opacity: toggle.toggling ? 0.6 : 1
+ 
+-        // M3 disabled unchecked border: on surface 12% opacity
+-        border.color: toggle.checked ? Style.withAlpha(Style.outline, 0) : (!toggle.enabled ? Qt.alpha(Style.surfaceText, 0.12) : Style.outline)
++        P5Plate {
++            anchors.fill: parent
++            skew: P5.slant(height) / 2
++            fillColor: !toggle.enabled ? (toggle.checked ? Qt.alpha(Style.surfaceText, 0.12) : "transparent") : (toggle.checked ? P5.violet : P5.ink)
++            borderWidth: toggle.checked && toggle.enabled ? 0 : 1.5
++            borderColor: !toggle.enabled ? Qt.alpha(Style.surfaceText, 0.12) : P5.alpha(P5.lilac, 0.55)
++            slabColor: toggle.checked && toggle.enabled ? P5.alpha(P5.paper, 0.9) : "transparent"
++            slabOffset: Qt.point(3, 3)
++
++            Behavior on fillColor {
++                enabled: P5.motionEnabled
++                ColorAnimation {
++                    duration: 120
++                }
++            }
++        }
+ 
+         readonly property int pad: Math.round((height - thumb.width) / 2)
+         readonly property int edgeLeft: pad
+@@ -126,14 +139,18 @@ Item {
+ 
+             width: toggle.checked ? insetCircle : insetCircle - 4
+             height: toggle.checked ? insetCircle : insetCircle - 4
+-            radius: Style.cornerRadius
++            radius: 0
+             anchors.verticalCenter: parent.verticalCenter
+ 
+-            // M3 disabled thumb:
+-            // checked = solid surface | unchecked = outlined off-state thumb
+-            color: !toggle.enabled ? (toggle.checked ? Style.surface : Style.withAlpha(Style.surface, 0)) : (toggle.checked ? Style.surface : Style.outline)
+-            border.color: !toggle.enabled ? (toggle.checked ? Style.withAlpha(Qt.alpha(Style.surfaceText, 0.38), 0) : Qt.alpha(Style.surfaceText, 0.38)) : Style.outline
+-            border.width: (toggle.checked && toggle.enabled) ? 1 : 2
++            // P5：斜切滑块。开 = 白块，关 = 丁香色块
++            color: "transparent"
++            border.width: 0
++
++            P5Plate {
++                anchors.fill: parent
++                skew: P5.slant(height) / 2
++                fillColor: !toggle.enabled ? (toggle.checked ? Style.surface : Qt.alpha(Style.surfaceText, 0.38)) : (toggle.checked ? P5.paper : P5.alpha(P5.lilac, 0.75))
++            }
+ 
+             x: toggle.checked ? toggleTrack.edgeRight : toggleTrack.edgeLeft
+ 
+@@ -174,7 +191,7 @@ Item {
+                 name: "check"
+                 size: 20
+                 // M3 disabled icon: on surface 38%
+-                color: toggle.enabled ? Style.surfaceText : Qt.alpha(Style.surfaceText, 0.38)
++                color: toggle.enabled ? P5.violet : Qt.alpha(Style.surfaceText, 0.38)
+                 filled: true
+                 opacity: (toggle.checked && toggle.enabled) ? 1 : 0
+                 scale: (toggle.checked && toggle.enabled) ? 1 : 0.6
+@@ -198,8 +215,8 @@ Item {
+ 
+         StateLayer {
+             disabled: !toggle.enabled
+-            stateColor: Style.primary
+-            cornerRadius: parent.radius
++            stateColor: "transparent"
++            cornerRadius: 0
+             onClicked: toggle.handleClick()
+         }
+ 

@@ -1,0 +1,22 @@
+diff --git a/Modules/DankIsland/Activities/WeatherExpanded.qml b/Modules/DankIsland/Activities/WeatherExpanded.qml
+index fe886a5..ab30388 100644
+--- a/Modules/DankIsland/Activities/WeatherExpanded.qml
++++ b/Modules/DankIsland/Activities/WeatherExpanded.qml
+@@ -1,14 +1,15 @@
+ pragma ComponentBehavior: Bound
+ 
+ import QtQuick
+-import qs.Modules.DankDash
++import qs.Modules.P5
+ 
++// P5：独立的天气页（爆炸星 + 巨大温度 + 情报牌 + 错落的预报卡）
+ DashTabFace {
+     id: root
+ 
+     activityId: "weather"
+     tabComponent: Component {
+-        WeatherTab {
++        P5WeatherPage {
+             live: root.live
+         }
+     }

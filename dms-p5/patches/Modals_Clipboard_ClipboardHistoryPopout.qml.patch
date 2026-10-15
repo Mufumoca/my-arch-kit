@@ -1,0 +1,25 @@
+diff --git a/Modals/Clipboard/ClipboardHistoryPopout.qml b/Modals/Clipboard/ClipboardHistoryPopout.qml
+index 54cf75d..5950ad7 100644
+--- a/Modals/Clipboard/ClipboardHistoryPopout.qml
++++ b/Modals/Clipboard/ClipboardHistoryPopout.qml
+@@ -52,8 +52,10 @@ DankPopout {
+         ClipboardService.clearAll();
+     }
+ 
+-    popupWidth: ClipboardConstants.popoutWidth
+-    popupHeight: ClipboardConstants.popoutHeight
++    // P5：通缉榜自己画墙面
++    popupWidth: 720
++    popupHeight: 680
++    p5Bare: true
+     triggerWidth: 55
+     positioning: ""
+     screen: triggerScreen
+@@ -142,6 +144,7 @@ DankPopout {
+             LayoutMirroring.childrenInherit: true
+ 
+             surfaceHost: root
++            p5Backdrop: true
+             transientSurfaceTracker: root.transientSurfaceTracker
+             clearConfirmDialog: clearConfirmDialog
+             onCloseRequested: root.hide()

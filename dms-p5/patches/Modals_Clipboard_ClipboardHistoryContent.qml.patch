@@ -1,0 +1,54 @@
+diff --git a/Modals/Clipboard/ClipboardHistoryContent.qml b/Modals/Clipboard/ClipboardHistoryContent.qml
+index 8e76bf9..20911a1 100644
+--- a/Modals/Clipboard/ClipboardHistoryContent.qml
++++ b/Modals/Clipboard/ClipboardHistoryContent.qml
+@@ -3,6 +3,9 @@ pragma ComponentBehavior: Bound
+ import QtQuick
+ import qs.Common
+ import qs.Services
++import qs.Modules.P5
++import qs.DankCommon.Common as P5c
++import qs.DankCommon.Widgets as P5w
+ 
+ FocusScope {
+     id: root
+@@ -10,6 +13,7 @@ FocusScope {
+     property var clearConfirmDialog: null
+     property var surfaceHost: null
+     property var transientSurfaceTracker: null
++    property bool p5Backdrop: false
+ 
+     property string activeTab: "recents"
+     property bool showKeyboardHints: false
+@@ -249,7 +253,8 @@ FocusScope {
+         visible: opacity > 0.01
+         enabled: root.mode === "history"
+ 
+-        ClipboardContent {
++        // P5：通缉榜
++        P5WantedBoard {
+             id: historyContent
+             anchors.fill: parent
+             modal: root
+@@ -257,6 +262,21 @@ FocusScope {
+         }
+     }
+ 
++    // P5：弹出面板没有默认底板（通缉榜自己画墙），编辑器需要一块底
++    P5w.P5Plate {
++        anchors.fill: parent
++        anchors.margins: 6
++        visible: root.p5Backdrop && editorView.visible
++        opacity: editorView.opacity
++        cutTopLeft: 18
++        cutBottomRight: 18
++        fillColor: P5c.P5.alpha(P5c.P5.night, 0.97)
++        borderWidth: 4
++        borderColor: P5c.P5.paper
++        slabColor: P5c.P5.violet
++        slabOffset: Qt.point(10, 10)
++    }
++
+     ClipboardEditor {
+         id: editorView
+         anchors.fill: parent

@@ -1,0 +1,102 @@
+diff --git a/Modules/ControlCenter/Widgets/SmallToggleButton.qml b/Modules/ControlCenter/Widgets/SmallToggleButton.qml
+index d3c1562..0bc022d 100644
+--- a/Modules/ControlCenter/Widgets/SmallToggleButton.qml
++++ b/Modules/ControlCenter/Widgets/SmallToggleButton.qml
+@@ -1,8 +1,11 @@
+ import QtQuick
++import qs.DankCommon.Common
++import qs.DankCommon.Widgets
+ import qs.Common
+ import qs.Widgets
+ 
+-Rectangle {
++// P5：小开关块（只有图标）
++Item {
+     id: root
+ 
+     property string iconName: ""
+@@ -14,71 +17,36 @@ Rectangle {
+ 
+     width: parent ? ((parent.width - parent.spacing * 3) / 4) : 48
+     height: 48
+-    radius: {
+-        if (Theme.cornerRadius === 0)
+-            return 0;
+-        return isActive ? Theme.cornerRadius : Theme.cornerRadius + 4;
+-    }
+-
+-    readonly property color _tileBgActive: Theme.ccTileActiveBg
+-    readonly property color _tileBgInactive: Theme.ccPillInactiveBg
+-    readonly property color _tileRingActive: Theme.ccTileRing
+-    readonly property color _tileIconActive: Theme.ccTileActiveText
+-    readonly property color _tileIconInactive: Theme.ccTileInactiveIcon
+-
+-    color: {
+-        if (isActive)
+-            return _tileBgActive;
+-        const baseColor = mouseArea.containsMouse ? Theme.ccPillInactiveHoverBg : _tileBgInactive;
+-        return baseColor;
+-    }
+-    border.color: isActive ? _tileRingActive : Theme.outlineMedium
+-    border.width: isActive ? 1 : Theme.layerOutlineWidth
+-    antialiasing: true
+     opacity: enabled ? 1.0 : 0.6
+ 
+-    Rectangle {
++    P5Plate {
+         anchors.fill: parent
+-        radius: parent.radius
+-        color: Theme.hoverTint(root.color)
+-        opacity: mouseArea.pressed ? 0.3 : (mouseArea.containsMouse ? 0.2 : 0.0)
+-        visible: opacity > 0
+-        antialiasing: true
+-        Behavior on opacity {
+-            NumberAnimation {
+-                duration: Theme.shortDuration
+-            }
+-        }
++        anchors.margins: 2
++        skew: 12
++        jitter: 1.5
++        seed: root.iconName.length * 9 % 83
++        fillColor: mouseArea.pressed ? P5.blood : (root.isActive ? P5.violet : (mouseArea.containsMouse ? P5.plum : P5.ink))
++        borderWidth: root.isActive ? 0 : 2
++        borderColor: P5.alpha(P5.lilac, 0.5)
++        slabColor: root.isActive ? P5.pink : "transparent"
++        slabOffset: Qt.point(3, 3)
+     }
+ 
+     DankIcon {
+         anchors.centerIn: parent
+-        name: iconName
++        name: root.iconName
+         size: Theme.iconSize
+-        color: isActive ? _tileIconActive : _tileIconInactive
+-        rotation: iconRotation
++        color: root.isActive ? P5.ink : P5.lilac
++        rotation: root.iconRotation
+         onRotationCompleted: root.iconRotationCompleted()
+     }
+ 
+-    DankRipple {
+-        id: ripple
+-        cornerRadius: root.radius
+-    }
+-
+     MouseArea {
+         id: mouseArea
+         anchors.fill: parent
+         hoverEnabled: true
+         cursorShape: Qt.PointingHandCursor
+         enabled: root.enabled
+-        onPressed: mouse => ripple.trigger(mouse.x, mouse.y)
+         onClicked: root.clicked()
+     }
+-
+-    Behavior on radius {
+-        NumberAnimation {
+-            duration: Theme.shortDuration
+-            easing.type: Theme.standardEasing
+-        }
+-    }
+ }

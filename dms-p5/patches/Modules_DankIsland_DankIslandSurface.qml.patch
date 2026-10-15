@@ -1,0 +1,135 @@
+diff --git a/Modules/DankIsland/DankIslandSurface.qml b/Modules/DankIsland/DankIslandSurface.qml
+index 6c30397..b56eb67 100644
+--- a/Modules/DankIsland/DankIslandSurface.qml
++++ b/Modules/DankIsland/DankIslandSurface.qml
+@@ -6,6 +6,9 @@ import qs.Modules.DankDash
+ import qs.Modules.DankIsland.Activities
+ import qs.Services
+ import qs.Widgets
++import qs.DankCommon.Common as P5c
++import qs.DankCommon.Widgets as P5w
++import qs.Modules.P5
+ 
+ Item {
+     id: root
+@@ -57,6 +60,7 @@ Item {
+     signal scrollWheel(var wheel)
+ 
+     readonly property alias inputMaskItem: inputEnvelope
++    readonly property alias paperInputItem: paperInput
+     readonly property alias fittsStripItem: fittsStrip
+     readonly property bool motionRunning: motion.running
+     readonly property real springTimeConstantMs: motion.timeConstantMs
+@@ -203,25 +207,56 @@ Item {
+         y: root.currentVisualY
+         width: root.currentVisualWidth
+         height: root.currentVisualHeight
+-        topLeftRadius: Math.max(0, motion.currentTopLeftRadius)
+-        topRightRadius: Math.max(0, motion.currentTopRightRadius)
+-        bottomLeftRadius: Math.max(0, motion.currentBottomLeftRadius)
+-        bottomRightRadius: Math.max(0, motion.currentBottomRightRadius)
+-        color: root.effectiveSurfaceColor
+-        border.width: root.notificationAccentColor !== "transparent" ? 1.5 : (root.highContrast ? 2 : (root.popupStyled ? BlurService.borderWidth : 0))
+-        border.color: root.notificationAccentColor !== "transparent" ? root.notificationAccentColor : (root.highContrast ? Theme.outlineStrong : (root.popupStyled ? BlurService.borderColor : "transparent"))
+-
+-        Behavior on color {
+-            ColorAnimation {
+-                duration: root.reducedMotion ? 0 : Theme.shortDuration
+-                easing.type: Easing.OutCubic
+-            }
+-        }
++        // P5：外形交给下面的 P5 板——收起时是斜切字块，展开后变成切角面板（流光）
++        color: "transparent"
++
++        P5w.P5Plate {
++            id: islandPlate
++
++            readonly property bool open: root.controller.expanded
++            readonly property bool alert: root.notificationAccentColor.a > 0
++            readonly property color accent: islandPlate.alert ? root.notificationAccentColor : (root.highContrast ? Theme.outlineStrong : P5c.P5.lilac)
+ 
+-        Behavior on border.color {
+-            ColorAnimation {
+-                duration: root.reducedMotion ? 0 : Theme.shortDuration
+-                easing.type: Easing.OutCubic
++            anchors.fill: parent
++            seed: 3
++            jitter: open ? 4 : 2
++            skew: open ? 0 : P5c.P5.slant(Math.min(height, 40)) * 0.8
++            cutTopLeft: open ? 18 : 0
++            cutBottomRight: open ? 18 : 6
++            fillColor: root.highContrast ? root.effectiveSurfaceColor : P5c.P5.alpha(open ? P5c.P5.night : P5c.P5.plum, Math.max(0.86, root.islandOpacity))
++            borderWidth: open ? 3.5 : 3
++            borderColor: islandPlate.alert ? root.notificationAccentColor : P5c.P5.paper
++            rimColor: open ? P5c.P5.alpha(P5c.P5.paper, 0.22) : P5c.P5.ink
++            rimInset: open ? 7 : 3
++            rimWidth: open ? 1 : 1.5
++            slabColor: islandPlate.alert ? root.notificationAccentColor : P5c.P5.violet
++            slabOffset: open ? Qt.point(10, 9) : Qt.point(4, 4)
++            slabRotation: open ? 1.1 : 2.5
++            slab2Color: P5c.P5.pink
++            slab2Offset: open ? Qt.point(-6, 15) : Qt.point(-5, 5)
++            slab2Rotation: open ? -1.6 : -3
++            accentColor: P5c.P5.violet
++            // 通知中心与展开的通知底色保持静态深紫：不要流动条纹与扫光，换成静态星星
++            readonly property bool plain: root.controller.activeActivity === "notificationcenter" || root.controller.activeActivity === "notification"
++            stars: open && plain ? 0.14 : 0
++            stripes: open && !plain ? 0.025 : 0
++            sheen: open && !plain ? 0.06 : 0
++
++            Behavior on skew {
++                enabled: !root.reducedMotion
++                NumberAnimation {
++                    duration: 180
++                    easing.type: Easing.BezierSpline
++                    easing.bezierCurve: P5c.P5.snapCurve
++                }
++            }
++            Behavior on slabOffset {
++                enabled: !root.reducedMotion
++                PropertyAnimation {
++                    duration: 220
++                    easing.type: Easing.BezierSpline
++                    easing.bezierCurve: P5c.P5.punchCurve
++                }
+             }
+         }
+ 
+@@ -281,7 +316,28 @@ Item {
+     }
+ 
+     function updateFittsPointerInside() {
+-        root.controller.updatePointerInside(islandHover.hovered || stripHover.hovered);
++        root.controller.updatePointerInside(islandHover.hovered || stripHover.hovered || notifyPaper.hovered);
++    }
++
++    // P5：新通知时从岛下沿吐出的纸条
++    P5NotifyPaper {
++        id: notifyPaper
++
++        notificationModel: root.notificationModel
++        showing: root.controller.notificationActive && !root.controller.expanded && !root.isVertical && !root.farEdge
++        width: 480
++        x: Math.round(root.currentVisualX + root.currentVisualWidth / 2 - width / 2)
++        y: Math.round(root.currentVisualY + root.currentVisualHeight - 3)
++        onHoveredChanged: root.updateFittsPointerInside()
++    }
++
++    Item {
++        id: paperInput
++
++        x: notifyPaper.x
++        y: notifyPaper.y
++        width: notifyPaper.showing ? notifyPaper.width : 0
++        height: notifyPaper.showing ? notifyPaper.height : 0
+     }
+ 
+     // Fitts zone from the island edge to the screen edge — hover/click count as island.
+@@ -513,6 +569,7 @@ Item {
+ 
+         NotificationExpanded {
+             notificationModel: root.notificationModel
++            controller: root.controller
+         }
+     }
+ }

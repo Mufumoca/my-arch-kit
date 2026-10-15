@@ -1,0 +1,103 @@
+diff --git a/Modules/DankBar/Widgets/WorkspaceSwitcher.qml b/Modules/DankBar/Widgets/WorkspaceSwitcher.qml
+index 6ba353d..860d123 100644
+--- a/Modules/DankBar/Widgets/WorkspaceSwitcher.qml
++++ b/Modules/DankBar/Widgets/WorkspaceSwitcher.qml
+@@ -8,6 +8,8 @@ import Quickshell.WindowManager
+ import qs.Common
+ import qs.Services
+ import qs.Widgets
++import qs.DankCommon.Common as P5c
++import qs.DankCommon.Widgets as P5w
+ import "../../../Common/WheelInput.js" as WheelInput
+ 
+ Item {
+@@ -925,20 +927,27 @@ Item {
+             }
+         }
+ 
+-        Rectangle {
++        // P5：与其它栏组件一致的歪斜梅紫卡
++        P5w.P5Plate {
+             id: background
+             anchors.fill: parent
+-            radius: (barConfig?.noBackground ?? false) ? 0 : Theme.cornerRadius
+-            color: {
+-                if ((barConfig?.noBackground ?? false))
+-                    return "transparent";
+-                const baseColor = Theme.widgetBaseBackgroundColor;
+-                const transparency = (root.barConfig && root.barConfig.widgetTransparency !== undefined) ? root.barConfig.widgetTransparency : 1.0;
+-                if (Theme.widgetBackgroundHasAlpha) {
+-                    return Theme.blendAlpha(baseColor, transparency);
+-                }
+-                return Theme.withAlpha(baseColor, transparency);
+-            }
++            visible: !(barConfig?.noBackground ?? false)
++            readonly property real transparency: (root.barConfig && root.barConfig.widgetTransparency !== undefined) ? root.barConfig.widgetTransparency : 1.0
++            seed: 7
++            jitter: 2
++            rotation: -0.8
++            skew: root.isVertical ? 0 : P5c.P5.slant(height) * 0.8
++            cutTopLeft: root.isVertical ? 6 : 0
++            cutBottomRight: root.isVertical ? 6 : 5
++            fillColor: P5c.P5.alpha(P5c.P5.plum, Math.max(transparency, 0.85))
++            borderWidth: 3
++            borderColor: P5c.P5.paper
++            rimColor: P5c.P5.ink
++            rimInset: 3
++            rimWidth: 1.5
++            slabColor: P5c.P5.violet
++            slabOffset: Qt.point(3, 3)
++            slabRotation: 1.2
+         }
+     }
+ 
+@@ -1675,12 +1684,45 @@ Item {
+                     height: delegateRoot.visualHeight
+                     x: root.isVertical ? (root.widgetHeight - width) / 2 : (parent.width - width) / 2
+                     y: root.isVertical ? (parent.height - height) / 2 : (root.widgetHeight - height) / 2
+-                    radius: Theme.cornerRadius
+-                    color: delegateRoot.displayColor
++                    radius: 0
++                    // P5：颜色画在下面的斜切板上；当前工作区带一层错位紫板
++                    color: "transparent"
+                     opacity: dragHandler.dragging ? 0.8 : 1.0
+ 
+-                    border.width: dragHandler.dragging ? 2 : (isUrgent ? 2 : (isDropTarget ? 2 : 0))
+-                    border.color: dragHandler.dragging ? Theme.primary : (isUrgent ? urgentColor : (isDropTarget ? Theme.primary : Theme.withAlpha(Theme.primary, 0)))
++                    border.width: 0
++                    border.color: "transparent"
++
++                    // 当前工作区：白色刀片 + 淡紫、粉两层错位板，并抬高一点；有窗口的：丁香色；空的：只剩描边
++                    P5w.P5Plate {
++                        readonly property bool cur: isActive && !isPlaceholder
++                        anchors.fill: parent
++                        anchors.topMargin: cur ? -3 : 0
++                        anchors.bottomMargin: cur ? -3 : 0
++                        seed: index + 31
++                        jitter: cur ? 1.5 : 1
++                        skew: root.isVertical ? 0 : P5c.P5.slant(height)
++                        cutTopLeft: root.isVertical ? 4 : 0
++                        cutBottomRight: root.isVertical ? 4 : 0
++                        rotation: cur ? -4 : 0
++                        fillColor: cur ? P5c.P5.paper : (isUrgent ? P5c.P5.blood : (isPlaceholder ? "transparent" : (isOccupied ? P5c.P5.alpha(P5c.P5.violet, isHovered ? 1 : 0.8) : P5c.P5.alpha(P5c.P5.paper, isHovered ? 0.5 : 0.25))))
++                        borderWidth: (dragHandler.dragging || isDropTarget || isPlaceholder) ? 1.5 : 0
++                        borderColor: (dragHandler.dragging || isDropTarget) ? P5c.P5.paper : P5c.P5.alpha(P5c.P5.paper, 0.4)
++                        slabColor: cur ? P5c.P5.violet : "transparent"
++                        slabOffset: Qt.point(3, 3)
++                        slabRotation: 5
++                        slab2Color: cur ? P5c.P5.pink : "transparent"
++                        slab2Offset: Qt.point(-3, 4)
++                        slab2Rotation: -6
++
++                        Behavior on rotation {
++                            enabled: P5c.P5.motionEnabled
++                            NumberAnimation {
++                                duration: 280
++                                easing.type: Easing.BezierSpline
++                                easing.bezierCurve: P5c.P5.punchCurve
++                            }
++                        }
++                    }
+ 
+                     transform: Translate {
+                         x: root.isVertical ? 0 : (dragHandler.dragging ? dragHandler.dragAxisOffset : 0)

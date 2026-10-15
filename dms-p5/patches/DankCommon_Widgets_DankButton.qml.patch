@@ -1,0 +1,68 @@
+diff --git a/DankCommon/Widgets/DankButton.qml b/DankCommon/Widgets/DankButton.qml
+index 60d81e1..f78e321 100644
+--- a/DankCommon/Widgets/DankButton.qml
++++ b/DankCommon/Widgets/DankButton.qml
+@@ -21,8 +21,9 @@ Rectangle {
+ 
+     width: Math.max(contentRow.implicitWidth + horizontalPadding * 2, 64)
+     height: buttonHeight
+-    radius: Style.cornerRadius
+-    color: backgroundColor
++    radius: 0
++    // P5：底色画在斜切板上，悬停时推出错位紫板
++    color: "transparent"
+     opacity: enabled ? 1 : 0.4
+     scale: (enableScaleAnimation && pressed) ? 0.98 : 1.0
+     activeFocusOnTab: enabled
+@@ -51,11 +52,28 @@ Rectangle {
+         }
+     }
+ 
+-    Rectangle {
++    P5Plate {
++        anchors.fill: parent
++        skew: P5.slant(height) / 2
++        fillColor: root.backgroundColor
++        slabColor: root.backgroundColor.a > 0 ? (P5.isSameHue(root.backgroundColor, P5.violet) ? P5.paper : P5.violet) : "transparent"
++        slabOffset: root.pressed ? Qt.point(1, 1) : (root.hovered ? Qt.point(4, 4) : Qt.point(2, 2))
++
++        Behavior on slabOffset {
++            enabled: P5.motionEnabled
++            PropertyAnimation {
++                duration: 140
++                easing.type: Easing.BezierSpline
++                easing.bezierCurve: P5.snapCurve
++            }
++        }
++    }
++
++    P5Plate {
+         id: stateLayer
+         anchors.fill: parent
+-        radius: parent.radius
+-        color: {
++        skew: P5.slant(height) / 2
++        fillColor: {
+             if (pressed)
+                 return Style.withAlpha(root.textColor, 0.20);
+             if (hovered)
+@@ -63,7 +81,7 @@ Rectangle {
+             return Style.withAlpha(root.textColor, 0);
+         }
+ 
+-        Behavior on color {
++        Behavior on fillColor {
+             ColorAnimation {
+                 duration: Style.shorterDuration
+                 easing.type: Style.standardEasing
+@@ -74,8 +92,8 @@ Rectangle {
+     DankRipple {
+         id: rippleLayer
+         rippleColor: root.textColor
+-        cornerRadius: root.radius
+-        enableRipple: root.enableRipple
++        cornerRadius: 0
++        enableRipple: false
+     }
+ 
+     Row {

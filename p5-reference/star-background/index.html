@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Persona 5 Animated Star Background — local copy</title>
+<style>
+body {
+  background: red;
+}
+
+.container {
+  position: absolute;
+  width: 600px;
+  height: 350px;
+  margin: 0 auto;
+  left: 0;
+  right: 0;
+  overflow: hidden;
+  background: #fff;
+}
+
+.star-wrapper {
+  position: absolute;
+  height: 250px;
+  width: 250px;
+}
+
+svg {
+  position: absolute;
+  margin: 0 auto;
+  top: 50%;
+  transform: translateY(-50%);
+  left: 0;
+  right: 0;
+}
+svg.grow {
+  height: 100%;
+  width: 100%;
+  animation: grow 10s linear;
+}
+svg.shrink {
+  height: 0%;
+  width: 0%;
+  animation: shrink 10s linear;
+}
+svg.black polygon {
+  fill: black;
+}
+svg.white polygon {
+  fill: white;
+}
+
+.star-wrapper:nth-child(5n) svg.black polygon {
+  fill: #8a8a8a !important;
+}
+
+.shrinker svg:nth-child(1) {
+  z-index: 12;
+}
+.shrinker svg:nth-child(2) {
+  z-index: 11;
+}
+.shrinker svg:nth-child(3) {
+  z-index: 10;
+}
+.shrinker svg:nth-child(4) {
+  z-index: 9;
+}
+.shrinker svg:nth-child(5) {
+  z-index: 8;
+}
+.shrinker svg:nth-child(6) {
+  z-index: 7;
+}
+.shrinker svg:nth-child(7) {
+  z-index: 6;
+}
+.shrinker svg:nth-child(8) {
+  z-index: 5;
+}
+.shrinker svg:nth-child(9) {
+  z-index: 4;
+}
+.shrinker svg:nth-child(10) {
+  z-index: 3;
+}
+.shrinker svg:nth-child(11) {
+  z-index: 2;
+}
+.shrinker svg:nth-child(12) {
+  z-index: 1;
+}
+
+@keyframes grow {
+  0% {
+    width: 0%;
+    height: 0%;
+  }
+  90% {
+    width: 100%;
+    height: 100%;
+  }
+}
+@keyframes shrink {
+  0% {
+    width: 100%;
+    height: 100%;
+  }
+  10% {
+    width: 100%;
+    height: 100%;
+  }
+  100% {
+    width: 0%;
+    height: 0%;
+  }
+}
+
+/*# sourceMappingURL=kq2.compiled.css.map */
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="star-wrapper"></div>
+</div>
+
+<script src="vendor/jquery.min.js"></script>
+<script>
+var cap = 12,
+    delay = 1000,
+    selector = ".star-wrapper",
+    grow = ".grower",
+    shrink = ".shrinker",
+    alt = true,
+    alt2 = true,
+    star = '<svg class="star" version="1.1" viewBox="0 0 987.8 950"><polygon points="493.9,0 646.5,309.2 987.8,358.8 740.8,599.5 799.1,939.4 493.9,779 188.6,939.4 246.9,599.5 0,358.8 341.3,309.2"/></svg>';
+
+//Get the timers going
+setInterval(function(){ 
+  makeStarGrow(grow); 
+  makeStarShrink(shrink); 
+}, delay);
+
+//Removes completed animations to reduce some lag..
+setTimeout(function() {
+   setInterval(function() {
+     $(selector).children("svg:first-child").remove();
+   }, delay);
+}, delay * cap);
+
+//Make it grow!
+function makeStarGrow(s) {
+  var tmp = $.parseHTML(star);
+  if(alt) $(tmp).addClass("black");
+  else $(tmp).addClass("white");
+  
+  $(tmp).addClass("grow");    
+  $(s).append(tmp);
+
+  alt = !alt;
+}
+
+//Make it shrink!
+function makeStarShrink(s) {
+  var tmp = $.parseHTML(star);
+  if(alt) $(tmp).addClass("black");
+  else $(tmp).addClass("white");
+  
+  $(tmp).addClass("shrink");    
+  $(s).append(tmp);
+
+  alt2 = !alt2;
+}
+
+//Scattering and randomizing effect
+for(var i = 0; i < 50; i++) {
+  var ran = Math.floor(Math.random() * 10) + 1;
+  var isSmall = Math.floor(Math.random() * 10) + 1;
+  var scale = "";
+  var tmp = $.parseHTML("<div class='star-wrapper'></div>");
+  if(ran >= 8) {  $(tmp).addClass("shrinker"); }
+  else {  $(tmp).addClass("grower"); }
+  
+  if(isSmall >= 9) { scale = "scale(.7)"; }
+  
+  $(tmp).css({
+    "transform": "rotate(" + Math.floor(Math.random() * 200) + "deg) " + scale,
+    "left": ((Math.floor(Math.random() * 800))) - 125  + "px",
+    "top": ((Math.floor(Math.random() * 400))) - 125 + "px",
+  });
+  $(".container").append($(tmp));
+}
+
+</script>
+</body>
+</html>
