@@ -260,8 +260,8 @@ FocusScope {
             pos = sel;
             vel = 0;
         } else if (pos !== sel || vel !== 0) {
-            // 欠阻尼弹簧：切换时带一点过冲，P5 的「甩」感
-            const ks = 230, cs = 2 * Math.sqrt(ks) * 0.66;
+            // 欠阻尼弹簧：切换时带一点过冲，P5 的「甩」感（比原版软一档，连按时不至于甩得太急）
+            const ks = 140, cs = 2 * Math.sqrt(ks) * 0.72;
             vel += (ks * (sel - pos) - cs * vel) * dt;
             let p = pos + vel * dt;
             if (Math.abs(sel - p) < 1e-4 && Math.abs(vel) < 1e-4) {
@@ -836,16 +836,79 @@ FocusScope {
         readonly property real e: root.easeOutBack(k, 1.15)
         readonly property real retract: (1 - root.easeOutCubic(k)) * 1500
 
-        // 焦点高亮跟随离散的 sel 立刻切换（进 0.2s / 出 0.13s），条幅本身按弹簧连续轮转
+        // 焦点高亮跟随离散的 sel 切换，条幅本身按弹簧连续轮转。
+        // 进：斜切擦除展开底片 + 向左弹出；出：底片保持原形淡出、条幅平滑缩回——不倒放擦除，免得像底片被「收回去」。
+        // 三个进度各自从当前值续播，快速来回切换也不会跳帧；revealT 只在淡出走完后才归零
         readonly property bool wantFocus: !isHeader && i === root.sel && root.foldTarget === 1
-        property real focusT: wantFocus ? 1 : 0
-        Behavior on focusT {
-            enabled: P5.motionEnabled
+        property real revealT: 0
+        property real extT: 0
+        property real fadeT: 0
+        Component.onCompleted: revealT = extT = fadeT = wantFocus ? 1 : 0
+        onWantFocusChanged: {
+            focusIn.stop();
+            focusOut.stop();
+            if (!P5.motionEnabled) {
+                revealT = extT = fadeT = wantFocus ? 1 : 0;
+                return;
+            }
+            if (wantFocus) {
+                // 擦除匀速续播：中途被切回来时只走剩下的那段
+                revealIn.duration = 300 * (1 - revealT);
+                focusIn.start();
+            } else
+                focusOut.start();
+        }
+        ParallelAnimation {
+            id: focusIn
             NumberAnimation {
-                duration: st.wantFocus ? 200 : 130
+                id: revealIn
+                target: st
+                property: "revealT"
+                to: 1
+            }
+            NumberAnimation {
+                target: st
+                property: "extT"
+                to: 1
+                duration: 340
+                easing.type: Easing.OutBack
+                easing.overshoot: 0.9
+            }
+            NumberAnimation {
+                target: st
+                property: "fadeT"
+                to: 1
+                duration: 90
             }
         }
-        readonly property real f: isHeader ? 0 : root.smoothstep(focusT) * root.smoothstep((k - 0.35) / 0.65)
+        SequentialAnimation {
+            id: focusOut
+            ParallelAnimation {
+                NumberAnimation {
+                    target: st
+                    property: "extT"
+                    to: 0
+                    duration: 300
+                    easing.type: Easing.InOutCubic
+                }
+                NumberAnimation {
+                    target: st
+                    property: "fadeT"
+                    to: 0
+                    duration: 220
+                    easing.type: Easing.OutQuad
+                }
+            }
+            PropertyAction {
+                target: st
+                property: "revealT"
+                value: 0
+            }
+        }
+        readonly property real gate: root.smoothstep((k - 0.35) / 0.65)
+        // 展开程度（擦除与焦点文字）；vis 再乘上淡出，给普通形态的显隐用
+        readonly property real f: isHeader ? 0 : root.smoothstep(revealT) * gate
+        readonly property real vis: f * fadeT
 
         // 悬停：非焦点条幅微微探出
         property real hoverAmt: root.hover === i && Math.abs(d) > 0.5 ? 1 : 0
@@ -861,7 +924,7 @@ FocusScope {
         // 下方压得快一些：折叠只留 maxFolded 条，第一条折叠条幅要足够扁，才能被后面几条盖住下沿
         readonly property real comp: Math.max(root.smoothstep((d - 3.3) / 1.2), root.smoothstep((-d - 2.1) / 2.2)) * e
         readonly property real grey: (255 - comp * 85) / 255
-        readonly property real nAlpha: (1 - root.smoothstep(f / 0.55)) * Math.pow(1 - comp, 1.6)
+        readonly property real nAlpha: (1 - root.smoothstep(vis / 0.55)) * Math.pow(1 - comp, 1.6)
 
         x: root.axisX
         y: root.lerp(root.foldKey[0], kf[0], e)
@@ -877,7 +940,7 @@ FocusScope {
 
         Item {
             id: slide
-            x: -st.kf[2] - (root.ext * root.easeOutBack(st.f, 0.9) + st.hoverAmt * 22) + st.retract
+            x: -st.kf[2] - root.ext * root.easeOutBack(st.gate, 0.9) * st.extT - st.hoverAmt * 22 + st.retract
 
             // 普通形态
             Shape {
@@ -959,9 +1022,10 @@ FocusScope {
 
             // 焦点形态：淡紫底片 + 齿孔，斜切擦除显隐
             Loader {
-                active: !st.isHeader && st.f > 0.002
+                active: !st.isHeader && st.vis > 0.002
                 sourceComponent: Item {
                     id: focusWrap
+                    opacity: st.fadeT
                     readonly property real w: root.easeOutCubic(st.f)
                     readonly property real ti: root.smoothstep((st.f - 0.45) / 0.55)
                     property real flash: 0
@@ -1217,7 +1281,7 @@ FocusScope {
             MouseArea {
                 visible: !st.isHeader
                 width: root.longLen
-                height: st.f > 0.5 ? root.hF : root.hN
+                height: st.vis > 0.5 ? root.hF : root.hN
                 hoverEnabled: true
                 cursorShape: Qt.PointingHandCursor
                 onContainsMouseChanged: {
