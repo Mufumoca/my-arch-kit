@@ -53,7 +53,9 @@ P5 页面都在 `overlay/Modules/P5/`（主页、左轮菜单、通缉令剪贴�
 应用列表：`Mod+Z`（`dms ipc call spotlight toggle`）打开全屏的 P5R 存档界面式列表（`Modules/P5/P5Apps.qml` 单例 →
 `P5AppsWindow` → `P5AppCarousel`，几何移植自 `p5-reference/save-carousel`，红色换成主题淡紫）。补丁只改了 `DMSShellIPC.qml`
 里 spotlight 的 open/close/toggle/openQuery/toggleQuery；`launcher` 目标和按模式打开（openWith/toggleWith）仍是原版启动器。
-数据与搜索走启动器的 `Controller`（应用模式），每条只显示图标、名字、简介。栏左上的 `launcherButton`（左轮菜单入口）已从 DMS 设置里移除。
+数据与搜索走启动器的 `Controller`（应用模式），每条只显示图标、名字、简介。
+切换选中项时新底片斜切擦除展开，旧底片**保持原形淡出**、条幅平滑缩回（不倒放擦除，否则像底片被「收回去」）；
+擦除 / 弹出 / 淡出是三个独立进度，快速来回切换从当前值续播。栏左上的 `launcherButton`（左轮菜单入口）已从 DMS 设置里移除。
 键位是单行 vim：普通模式 `j/k`、`gg/G`、`Ctrl-d/u` 选，`Enter` 启动，`i/a/I/A//` 进插入模式（标题位置拉出搜索长条，
 `Enter` 启动、`↑↓`/`Ctrl-j/k` 选）；`Esc` 回普通模式后长条保留，可用 `h/l/w/b/e/0/^/$`、`x/X/s/S/D/C`、`d/c/y` + 动作或 `iw/aw`、
 `p/P/r/~/u/Ctrl-r` 编辑搜索词；普通模式再按 `Esc`（或 `q`）关闭。
